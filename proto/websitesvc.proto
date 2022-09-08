@@ -1,0 +1,33 @@
+// In general, while you can use proto2 (the current default protocol buffers
+// version), we recommend that you use proto3 with gRPC as it lets you use the
+// full range of gRPC-supported languages, as well as avoiding compatibility
+// issues with proto2 clients talking to proto3 servers and vice versa.
+syntax = "proto3";
+
+// The package name determines the name of the directories that truss creates
+// for `package echo;` truss will create the directory "echo-service".
+package websitesvc;
+
+import "github.com/metaverse/truss/deftree/googlethirdparty/annotations.proto";
+
+service Websitesvc {
+
+  rpc WebsiteCategoryList (WebsiteCategoryListRequest) returns (WebsiteCategoryListResponse) {
+        option (google.api.http) = {
+          get: "/website_category/list"
+          additional_bindings {
+            get: "/website_category/list/"
+          }
+        };
+
+}
+
+}
+
+message WebsiteCategoryListRequest {
+  uint64 list_num = 1;
+}
+
+message WebsiteCategoryListResponse {
+  uint64 code = 1;
+}
