@@ -34,6 +34,8 @@ import (
 // construct individual endpoints using transport/http.NewClient, combine them into an Endpoints, and return it to the caller as a Service.
 type Endpoints struct {
 	WebsiteCategoryListEndpoint endpoint.Endpoint
+	WebsitePageEndpoint         endpoint.Endpoint
+	WebsiteRecommendEndpoint    endpoint.Endpoint
 }
 
 // Endpoints
@@ -44,6 +46,22 @@ func (e Endpoints) WebsiteCategoryList(ctx context.Context, in *pb.WebsiteCatego
 		return nil, err
 	}
 	return response.(*pb.WebsiteCategoryListResponse), nil
+}
+
+func (e Endpoints) WebsitePage(ctx context.Context, in *pb.WebsitePageRequest) (*pb.WebsitePageResponse, error) {
+	response, err := e.WebsitePageEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.WebsitePageResponse), nil
+}
+
+func (e Endpoints) WebsiteRecommend(ctx context.Context, in *pb.WebsiteRecommendRequest) (*pb.WebsiteRecommendResponse, error) {
+	response, err := e.WebsiteRecommendEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.WebsiteRecommendResponse), nil
 }
 
 // Make Endpoints
@@ -59,6 +77,28 @@ func MakeWebsiteCategoryListEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
 	}
 }
 
+func MakeWebsitePageEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.WebsitePageRequest)
+		v, err := s.WebsitePage(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
+func MakeWebsiteRecommendEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.WebsiteRecommendRequest)
+		v, err := s.WebsiteRecommend(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
 // WrapAllExcept wraps each Endpoint field of struct Endpoints with a
 // go-kit/kit/endpoint.Middleware.
 // Use this for applying a set of middlewares to every endpoint in the service.
@@ -67,6 +107,8 @@ func MakeWebsiteCategoryListEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
 func (e *Endpoints) WrapAllExcept(middleware endpoint.Middleware, excluded ...string) {
 	included := map[string]struct{}{
 		"WebsiteCategoryList": {},
+		"WebsitePage":         {},
+		"WebsiteRecommend":    {},
 	}
 
 	for _, ex := range excluded {
@@ -79,6 +121,12 @@ func (e *Endpoints) WrapAllExcept(middleware endpoint.Middleware, excluded ...st
 	for inc := range included {
 		if inc == "WebsiteCategoryList" {
 			e.WebsiteCategoryListEndpoint = middleware(e.WebsiteCategoryListEndpoint)
+		}
+		if inc == "WebsitePage" {
+			e.WebsitePageEndpoint = middleware(e.WebsitePageEndpoint)
+		}
+		if inc == "WebsiteRecommend" {
+			e.WebsiteRecommendEndpoint = middleware(e.WebsiteRecommendEndpoint)
 		}
 	}
 }
@@ -95,6 +143,8 @@ type LabeledMiddleware func(string, endpoint.Endpoint) endpoint.Endpoint
 func (e *Endpoints) WrapAllLabeledExcept(middleware func(string, endpoint.Endpoint) endpoint.Endpoint, excluded ...string) {
 	included := map[string]struct{}{
 		"WebsiteCategoryList": {},
+		"WebsitePage":         {},
+		"WebsiteRecommend":    {},
 	}
 
 	for _, ex := range excluded {
@@ -107,6 +157,12 @@ func (e *Endpoints) WrapAllLabeledExcept(middleware func(string, endpoint.Endpoi
 	for inc := range included {
 		if inc == "WebsiteCategoryList" {
 			e.WebsiteCategoryListEndpoint = middleware("WebsiteCategoryList", e.WebsiteCategoryListEndpoint)
+		}
+		if inc == "WebsitePage" {
+			e.WebsitePageEndpoint = middleware("WebsitePage", e.WebsitePageEndpoint)
+		}
+		if inc == "WebsiteRecommend" {
+			e.WebsiteRecommendEndpoint = middleware("WebsiteRecommend", e.WebsiteRecommendEndpoint)
 		}
 	}
 }

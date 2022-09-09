@@ -21,13 +21,80 @@ service Websitesvc {
         };
 
 }
+  rpc WebsitePage (WebsitePageRequest) returns (WebsitePageResponse) {
+        option (google.api.http) = {
+          get: "/website/page"
+          additional_bindings {
+            get: "/website/page/"
+          }
+        };
 
+}
+  rpc WebsiteRecommend (WebsiteRecommendRequest) returns (WebsiteRecommendResponse) {
+        option (google.api.http) = {
+          get: "/website/recommend"
+          additional_bindings {
+            get: "/website/recommend/"
+          }
+        };
+
+}
+
+}
+
+message PageQuick {
+  uint64 limit = 1;
+  string next_id = 2;
+  uint64 total = 3;
+}
+message Page {
+  uint64 total_records = 1;
+  uint64 page_size = 2;
+  uint64 page_num = 3;
+  uint64 total_page = 4;
 }
 
 message WebsiteCategoryListRequest {
   uint64 list_num = 1;
 }
 
+message WebsiteCategory {
+  string id = 1;
+  string name = 2;
+}
+
 message WebsiteCategoryListResponse {
+  uint64 code = 1;
+  repeated WebsiteCategory data = 2;
+}
+
+message WebsitePageRequest {
+  string type = 1;
+  string website_category_id = 2;
+  string Keywords = 3;
+  PageQuick paginator = 4;
+}
+
+message WebsitePageResponse {
+  uint64 code = 1;
+  repeated Website data = 2;
+  PageQuick paginator = 3;
+}
+
+message Website {
+  string id = 1;
+  string website_category_id = 2;
+  string title = 3;
+  string url = 4;
+  string logo = 5;
+  string desc = 6;
+  string type = 7;
+}
+
+message WebsiteRecommendRequest {
+  uint64 list_num = 1;
+}
+
+message WebsiteRecommendResponse {
   uint64 code = 1;
 }

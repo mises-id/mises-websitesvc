@@ -35,12 +35,26 @@ func MakeGRPCServer(endpoints Endpoints, options ...grpctransport.ServerOption) 
 			EncodeGRPCWebsiteCategoryListResponse,
 			serverOptions...,
 		),
+		websitepage: grpctransport.NewServer(
+			endpoints.WebsitePageEndpoint,
+			DecodeGRPCWebsitePageRequest,
+			EncodeGRPCWebsitePageResponse,
+			serverOptions...,
+		),
+		websiterecommend: grpctransport.NewServer(
+			endpoints.WebsiteRecommendEndpoint,
+			DecodeGRPCWebsiteRecommendRequest,
+			EncodeGRPCWebsiteRecommendResponse,
+			serverOptions...,
+		),
 	}
 }
 
 // grpcServer implements the WebsitesvcServer interface
 type grpcServer struct {
 	websitecategorylist grpctransport.Handler
+	websitepage         grpctransport.Handler
+	websiterecommend    grpctransport.Handler
 }
 
 // Methods for grpcServer to implement WebsitesvcServer interface
@@ -53,6 +67,22 @@ func (s *grpcServer) WebsiteCategoryList(ctx context.Context, req *pb.WebsiteCat
 	return rep.(*pb.WebsiteCategoryListResponse), nil
 }
 
+func (s *grpcServer) WebsitePage(ctx context.Context, req *pb.WebsitePageRequest) (*pb.WebsitePageResponse, error) {
+	_, rep, err := s.websitepage.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*pb.WebsitePageResponse), nil
+}
+
+func (s *grpcServer) WebsiteRecommend(ctx context.Context, req *pb.WebsiteRecommendRequest) (*pb.WebsiteRecommendResponse, error) {
+	_, rep, err := s.websiterecommend.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*pb.WebsiteRecommendResponse), nil
+}
+
 // Server Decode
 
 // DecodeGRPCWebsiteCategoryListRequest is a transport/grpc.DecodeRequestFunc that converts a
@@ -62,12 +92,40 @@ func DecodeGRPCWebsiteCategoryListRequest(_ context.Context, grpcReq interface{}
 	return req, nil
 }
 
+// DecodeGRPCWebsitePageRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC websitepage request to a user-domain websitepage request. Primarily useful in a server.
+func DecodeGRPCWebsitePageRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*pb.WebsitePageRequest)
+	return req, nil
+}
+
+// DecodeGRPCWebsiteRecommendRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC websiterecommend request to a user-domain websiterecommend request. Primarily useful in a server.
+func DecodeGRPCWebsiteRecommendRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*pb.WebsiteRecommendRequest)
+	return req, nil
+}
+
 // Server Encode
 
 // EncodeGRPCWebsiteCategoryListResponse is a transport/grpc.EncodeResponseFunc that converts a
 // user-domain websitecategorylist response to a gRPC websitecategorylist reply. Primarily useful in a server.
 func EncodeGRPCWebsiteCategoryListResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(*pb.WebsiteCategoryListResponse)
+	return resp, nil
+}
+
+// EncodeGRPCWebsitePageResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain websitepage response to a gRPC websitepage reply. Primarily useful in a server.
+func EncodeGRPCWebsitePageResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(*pb.WebsitePageResponse)
+	return resp, nil
+}
+
+// EncodeGRPCWebsiteRecommendResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain websiterecommend response to a gRPC websiterecommend reply. Primarily useful in a server.
+func EncodeGRPCWebsiteRecommendResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(*pb.WebsiteRecommendResponse)
 	return resp, nil
 }
 

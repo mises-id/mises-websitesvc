@@ -49,8 +49,36 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.WebsitesvcServer, e
 		).Endpoint()
 	}
 
+	var websitepageEndpoint endpoint.Endpoint
+	{
+		websitepageEndpoint = grpctransport.NewClient(
+			conn,
+			"websitesvc.Websitesvc",
+			"WebsitePage",
+			EncodeGRPCWebsitePageRequest,
+			DecodeGRPCWebsitePageResponse,
+			pb.WebsitePageResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
+	var websiterecommendEndpoint endpoint.Endpoint
+	{
+		websiterecommendEndpoint = grpctransport.NewClient(
+			conn,
+			"websitesvc.Websitesvc",
+			"WebsiteRecommend",
+			EncodeGRPCWebsiteRecommendRequest,
+			DecodeGRPCWebsiteRecommendResponse,
+			pb.WebsiteRecommendResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
 	return svc.Endpoints{
 		WebsiteCategoryListEndpoint: websitecategorylistEndpoint,
+		WebsitePageEndpoint:         websitepageEndpoint,
+		WebsiteRecommendEndpoint:    websiterecommendEndpoint,
 	}, nil
 }
 
@@ -63,12 +91,40 @@ func DecodeGRPCWebsiteCategoryListResponse(_ context.Context, grpcReply interfac
 	return reply, nil
 }
 
+// DecodeGRPCWebsitePageResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC websitepage reply to a user-domain websitepage response. Primarily useful in a client.
+func DecodeGRPCWebsitePageResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.WebsitePageResponse)
+	return reply, nil
+}
+
+// DecodeGRPCWebsiteRecommendResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC websiterecommend reply to a user-domain websiterecommend response. Primarily useful in a client.
+func DecodeGRPCWebsiteRecommendResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.WebsiteRecommendResponse)
+	return reply, nil
+}
+
 // GRPC Client Encode
 
 // EncodeGRPCWebsiteCategoryListRequest is a transport/grpc.EncodeRequestFunc that converts a
 // user-domain websitecategorylist request to a gRPC websitecategorylist request. Primarily useful in a client.
 func EncodeGRPCWebsiteCategoryListRequest(_ context.Context, request interface{}) (interface{}, error) {
 	req := request.(*pb.WebsiteCategoryListRequest)
+	return req, nil
+}
+
+// EncodeGRPCWebsitePageRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain websitepage request to a gRPC websitepage request. Primarily useful in a client.
+func EncodeGRPCWebsitePageRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.WebsitePageRequest)
+	return req, nil
+}
+
+// EncodeGRPCWebsiteRecommendRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain websiterecommend request to a gRPC websiterecommend request. Primarily useful in a client.
+func EncodeGRPCWebsiteRecommendRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.WebsiteRecommendRequest)
 	return req, nil
 }
 

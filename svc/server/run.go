@@ -54,10 +54,14 @@ func NewEndpoints(service pb.WebsitesvcServer) svc.Endpoints {
 	// Endpoint domain.
 	var (
 		websitecategorylistEndpoint = svc.MakeWebsiteCategoryListEndpoint(service)
+		websitepageEndpoint         = svc.MakeWebsitePageEndpoint(service)
+		websiterecommendEndpoint    = svc.MakeWebsiteRecommendEndpoint(service)
 	)
 
 	endpoints := svc.Endpoints{
 		WebsiteCategoryListEndpoint: websitecategorylistEndpoint,
+		WebsitePageEndpoint:         websitepageEndpoint,
+		WebsiteRecommendEndpoint:    websiterecommendEndpoint,
 	}
 
 	// Wrap selected Endpoints with middlewares. See handlers/middlewares.go

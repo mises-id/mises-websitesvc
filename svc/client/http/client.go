@@ -61,9 +61,31 @@ func New(instance string, options ...httptransport.ClientOption) (pb.WebsitesvcS
 			options...,
 		).Endpoint()
 	}
+	var WebsitePageZeroEndpoint endpoint.Endpoint
+	{
+		WebsitePageZeroEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/website/page/"),
+			EncodeHTTPWebsitePageZeroRequest,
+			DecodeHTTPWebsitePageResponse,
+			options...,
+		).Endpoint()
+	}
+	var WebsiteRecommendZeroEndpoint endpoint.Endpoint
+	{
+		WebsiteRecommendZeroEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/website/recommend/"),
+			EncodeHTTPWebsiteRecommendZeroRequest,
+			DecodeHTTPWebsiteRecommendResponse,
+			options...,
+		).Endpoint()
+	}
 
 	return svc.Endpoints{
 		WebsiteCategoryListEndpoint: WebsiteCategoryListZeroEndpoint,
+		WebsitePageEndpoint:         WebsitePageZeroEndpoint,
+		WebsiteRecommendEndpoint:    WebsiteRecommendZeroEndpoint,
 	}, nil
 }
 
@@ -110,6 +132,60 @@ func DecodeHTTPWebsiteCategoryListResponse(_ context.Context, r *http.Response) 
 	}
 
 	var resp pb.WebsiteCategoryListResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
+// DecodeHTTPWebsitePageResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded WebsitePageResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPWebsitePageResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.WebsitePageResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
+// DecodeHTTPWebsiteRecommendResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded WebsiteRecommendResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPWebsiteRecommendResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.WebsiteRecommendResponse
 	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
 		return nil, errorDecoder(buf)
 	}
@@ -173,6 +249,174 @@ func EncodeHTTPWebsiteCategoryListOneRequest(_ context.Context, r *http.Request,
 		"",
 		"website_category",
 		"list",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("list_num", fmt.Sprint(req.ListNum))
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPWebsitePageZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a websitepage request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPWebsitePageZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.WebsitePageRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"website",
+		"page",
+		"",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("type", fmt.Sprint(req.Type))
+
+	values.Add("website_category_id", fmt.Sprint(req.WebsiteCategoryId))
+
+	values.Add("Keywords", fmt.Sprint(req.Keywords))
+
+	tmp, err = json.Marshal(req.Paginator)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal req.Paginator")
+	}
+	strval = string(tmp)
+	values.Add("paginator", strval)
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPWebsitePageOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a websitepage request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPWebsitePageOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.WebsitePageRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"website",
+		"page",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("type", fmt.Sprint(req.Type))
+
+	values.Add("website_category_id", fmt.Sprint(req.WebsiteCategoryId))
+
+	values.Add("Keywords", fmt.Sprint(req.Keywords))
+
+	tmp, err = json.Marshal(req.Paginator)
+	if err != nil {
+		return errors.Wrap(err, "failed to marshal req.Paginator")
+	}
+	strval = string(tmp)
+	values.Add("paginator", strval)
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPWebsiteRecommendZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a websiterecommend request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPWebsiteRecommendZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.WebsiteRecommendRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"website",
+		"recommend",
+		"",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("list_num", fmt.Sprint(req.ListNum))
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPWebsiteRecommendOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a websiterecommend request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPWebsiteRecommendOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.WebsiteRecommendRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"website",
+		"recommend",
 	}, "/")
 	u, err := url.Parse(path)
 	if err != nil {

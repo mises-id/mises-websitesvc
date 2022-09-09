@@ -70,6 +70,32 @@ func MakeHTTPHandler(endpoints Endpoints, responseEncoder httptransport.EncodeRe
 		responseEncoder,
 		serverOptions...,
 	))
+
+	m.Methods("GET").Path("/website/page/").Handler(httptransport.NewServer(
+		endpoints.WebsitePageEndpoint,
+		DecodeHTTPWebsitePageZeroRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+	m.Methods("GET").Path("/website/page").Handler(httptransport.NewServer(
+		endpoints.WebsitePageEndpoint,
+		DecodeHTTPWebsitePageOneRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+
+	m.Methods("GET").Path("/website/recommend/").Handler(httptransport.NewServer(
+		endpoints.WebsiteRecommendEndpoint,
+		DecodeHTTPWebsiteRecommendZeroRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+	m.Methods("GET").Path("/website/recommend").Handler(httptransport.NewServer(
+		endpoints.WebsiteRecommendEndpoint,
+		DecodeHTTPWebsiteRecommendOneRequest,
+		responseEncoder,
+		serverOptions...,
+	))
 	return m
 }
 
@@ -208,6 +234,224 @@ func DecodeHTTPWebsiteCategoryListOneRequest(_ context.Context, r *http.Request)
 			return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting ListNumWebsiteCategoryList from query, queryParams: %v", queryParams))
 		}
 		req.ListNum = ListNumWebsiteCategoryList
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPWebsitePageZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded websitepage request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPWebsitePageZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.WebsitePageRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if TypeWebsitePageStrArr, ok := queryParams["type"]; ok {
+		TypeWebsitePageStr := TypeWebsitePageStrArr[0]
+		TypeWebsitePage := TypeWebsitePageStr
+		req.Type = TypeWebsitePage
+	}
+
+	if WebsiteCategoryIdWebsitePageStrArr, ok := queryParams["website_category_id"]; ok {
+		WebsiteCategoryIdWebsitePageStr := WebsiteCategoryIdWebsitePageStrArr[0]
+		WebsiteCategoryIdWebsitePage := WebsiteCategoryIdWebsitePageStr
+		req.WebsiteCategoryId = WebsiteCategoryIdWebsitePage
+	}
+
+	if KeywordsWebsitePageStrArr, ok := queryParams["Keywords"]; ok {
+		KeywordsWebsitePageStr := KeywordsWebsitePageStrArr[0]
+		KeywordsWebsitePage := KeywordsWebsitePageStr
+		req.Keywords = KeywordsWebsitePage
+	}
+
+	if PaginatorWebsitePageStrArr, ok := queryParams["paginator"]; ok {
+		PaginatorWebsitePageStr := PaginatorWebsitePageStrArr[0]
+
+		err = json.Unmarshal([]byte(PaginatorWebsitePageStr), req.Paginator)
+		if err != nil {
+			return nil, errors.Wrapf(err, "couldn't decode PaginatorWebsitePage from %v", PaginatorWebsitePageStr)
+		}
+
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPWebsitePageOneRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded websitepage request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPWebsitePageOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.WebsitePageRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if TypeWebsitePageStrArr, ok := queryParams["type"]; ok {
+		TypeWebsitePageStr := TypeWebsitePageStrArr[0]
+		TypeWebsitePage := TypeWebsitePageStr
+		req.Type = TypeWebsitePage
+	}
+
+	if WebsiteCategoryIdWebsitePageStrArr, ok := queryParams["website_category_id"]; ok {
+		WebsiteCategoryIdWebsitePageStr := WebsiteCategoryIdWebsitePageStrArr[0]
+		WebsiteCategoryIdWebsitePage := WebsiteCategoryIdWebsitePageStr
+		req.WebsiteCategoryId = WebsiteCategoryIdWebsitePage
+	}
+
+	if KeywordsWebsitePageStrArr, ok := queryParams["Keywords"]; ok {
+		KeywordsWebsitePageStr := KeywordsWebsitePageStrArr[0]
+		KeywordsWebsitePage := KeywordsWebsitePageStr
+		req.Keywords = KeywordsWebsitePage
+	}
+
+	if PaginatorWebsitePageStrArr, ok := queryParams["paginator"]; ok {
+		PaginatorWebsitePageStr := PaginatorWebsitePageStrArr[0]
+
+		err = json.Unmarshal([]byte(PaginatorWebsitePageStr), req.Paginator)
+		if err != nil {
+			return nil, errors.Wrapf(err, "couldn't decode PaginatorWebsitePage from %v", PaginatorWebsitePageStr)
+		}
+
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPWebsiteRecommendZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded websiterecommend request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPWebsiteRecommendZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.WebsiteRecommendRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if ListNumWebsiteRecommendStrArr, ok := queryParams["list_num"]; ok {
+		ListNumWebsiteRecommendStr := ListNumWebsiteRecommendStrArr[0]
+		ListNumWebsiteRecommend, err := strconv.ParseUint(ListNumWebsiteRecommendStr, 10, 64)
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting ListNumWebsiteRecommend from query, queryParams: %v", queryParams))
+		}
+		req.ListNum = ListNumWebsiteRecommend
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPWebsiteRecommendOneRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded websiterecommend request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPWebsiteRecommendOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.WebsiteRecommendRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if ListNumWebsiteRecommendStrArr, ok := queryParams["list_num"]; ok {
+		ListNumWebsiteRecommendStr := ListNumWebsiteRecommendStrArr[0]
+		ListNumWebsiteRecommend, err := strconv.ParseUint(ListNumWebsiteRecommendStr, 10, 64)
+		if err != nil {
+			return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting ListNumWebsiteRecommend from query, queryParams: %v", queryParams))
+		}
+		req.ListNum = ListNumWebsiteRecommend
 	}
 
 	return &req, err

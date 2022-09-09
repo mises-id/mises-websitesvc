@@ -26,8 +26,6 @@ func main() {
 	//models.EnsureIndex()
 
 	cfg := server.DefaultConfig
-	cfg.HTTPAddr = ":3050"
-	cfg.GRPCAddr = ":3040"
 	cfg = handlers.SetConfig(cfg)
 
 	server.Run(cfg)
