@@ -39,6 +39,15 @@ service Websitesvc {
         };
 
 }
+  rpc WebsiteImport (WebsiteImportRequest) returns (WebsiteImportResponse) {
+        option (google.api.http) = {
+          get: "/website/import"
+          additional_bindings {
+            get: "/website/import/"
+          }
+        };
+
+}
 
 }
 
@@ -96,5 +105,13 @@ message WebsiteRecommendRequest {
 }
 
 message WebsiteRecommendResponse {
+  uint64 code = 1;
+  repeated Website data = 2;
+}
+message WebsiteImportRequest {
+  string file_path = 1;
+}
+
+message WebsiteImportResponse {
   uint64 code = 1;
 }

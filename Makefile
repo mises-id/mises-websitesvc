@@ -9,7 +9,7 @@ upload:
 replace:
 	ssh mises_backup "mv /apps/mises-websitesvc/main /apps/mises-websitesvc/mises-websitesvc"
 restart:
-	ssh mises_backup "sudo supervisorctl restart websitesvc"
+	ssh mises_backup "sudo supervisorctl restart mises-websitesvc"
 deploy: build \
 	upload \
 	replace 

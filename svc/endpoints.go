@@ -36,6 +36,7 @@ type Endpoints struct {
 	WebsiteCategoryListEndpoint endpoint.Endpoint
 	WebsitePageEndpoint         endpoint.Endpoint
 	WebsiteRecommendEndpoint    endpoint.Endpoint
+	WebsiteImportEndpoint       endpoint.Endpoint
 }
 
 // Endpoints
@@ -62,6 +63,14 @@ func (e Endpoints) WebsiteRecommend(ctx context.Context, in *pb.WebsiteRecommend
 		return nil, err
 	}
 	return response.(*pb.WebsiteRecommendResponse), nil
+}
+
+func (e Endpoints) WebsiteImport(ctx context.Context, in *pb.WebsiteImportRequest) (*pb.WebsiteImportResponse, error) {
+	response, err := e.WebsiteImportEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.WebsiteImportResponse), nil
 }
 
 // Make Endpoints
@@ -99,6 +108,17 @@ func MakeWebsiteRecommendEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
 	}
 }
 
+func MakeWebsiteImportEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.WebsiteImportRequest)
+		v, err := s.WebsiteImport(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
 // WrapAllExcept wraps each Endpoint field of struct Endpoints with a
 // go-kit/kit/endpoint.Middleware.
 // Use this for applying a set of middlewares to every endpoint in the service.
@@ -109,6 +129,7 @@ func (e *Endpoints) WrapAllExcept(middleware endpoint.Middleware, excluded ...st
 		"WebsiteCategoryList": {},
 		"WebsitePage":         {},
 		"WebsiteRecommend":    {},
+		"WebsiteImport":       {},
 	}
 
 	for _, ex := range excluded {
@@ -128,6 +149,9 @@ func (e *Endpoints) WrapAllExcept(middleware endpoint.Middleware, excluded ...st
 		if inc == "WebsiteRecommend" {
 			e.WebsiteRecommendEndpoint = middleware(e.WebsiteRecommendEndpoint)
 		}
+		if inc == "WebsiteImport" {
+			e.WebsiteImportEndpoint = middleware(e.WebsiteImportEndpoint)
+		}
 	}
 }
 
@@ -145,6 +169,7 @@ func (e *Endpoints) WrapAllLabeledExcept(middleware func(string, endpoint.Endpoi
 		"WebsiteCategoryList": {},
 		"WebsitePage":         {},
 		"WebsiteRecommend":    {},
+		"WebsiteImport":       {},
 	}
 
 	for _, ex := range excluded {
@@ -163,6 +188,9 @@ func (e *Endpoints) WrapAllLabeledExcept(middleware func(string, endpoint.Endpoi
 		}
 		if inc == "WebsiteRecommend" {
 			e.WebsiteRecommendEndpoint = middleware("WebsiteRecommend", e.WebsiteRecommendEndpoint)
+		}
+		if inc == "WebsiteImport" {
+			e.WebsiteImportEndpoint = middleware("WebsiteImport", e.WebsiteImportEndpoint)
 		}
 	}
 }

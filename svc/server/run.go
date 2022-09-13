@@ -56,12 +56,14 @@ func NewEndpoints(service pb.WebsitesvcServer) svc.Endpoints {
 		websitecategorylistEndpoint = svc.MakeWebsiteCategoryListEndpoint(service)
 		websitepageEndpoint         = svc.MakeWebsitePageEndpoint(service)
 		websiterecommendEndpoint    = svc.MakeWebsiteRecommendEndpoint(service)
+		websiteimportEndpoint       = svc.MakeWebsiteImportEndpoint(service)
 	)
 
 	endpoints := svc.Endpoints{
 		WebsiteCategoryListEndpoint: websitecategorylistEndpoint,
 		WebsitePageEndpoint:         websitepageEndpoint,
 		WebsiteRecommendEndpoint:    websiterecommendEndpoint,
+		WebsiteImportEndpoint:       websiteimportEndpoint,
 	}
 
 	// Wrap selected Endpoints with middlewares. See handlers/middlewares.go

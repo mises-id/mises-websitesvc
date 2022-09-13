@@ -10,8 +10,10 @@ import (
 )
 
 var (
-	mongoDB   *mongo.Database
-	odmClient *odm.Client
+	mongoDB     *mongo.Database
+	mongoClient *mongo.Client
+	mongoDBMap  map[string]*mongo.Database
+	odmClient   *odm.Client
 )
 
 func SetupMongo(ctx context.Context) {
@@ -26,6 +28,7 @@ func SetupMongo(ctx context.Context) {
 	if err != nil {
 		panic(err)
 	}
+	mongoClient = client
 	mongoDB = client.Database(env.Envs.DBName)
 	odmClient = odm.NewClient(mongoDB)
 }
@@ -33,7 +36,17 @@ func SetupMongo(ctx context.Context) {
 func DB() *mongo.Database {
 	return mongoDB
 }
-
+func Database(dbname string) *mongo.Database {
+	var res *mongo.Database
+	res, ok := mongoDBMap[dbname]
+	if !ok {
+		res = mongoClient.Database(dbname)
+	}
+	return res
+}
 func ODM(ctx context.Context) *odm.DB {
 	return odmClient.NewSession(ctx)
+}
+func NewODM(ctx context.Context, dbname string) *odm.DB {
+	return odm.NewClient(Database(dbname)).NewSession(ctx)
 }

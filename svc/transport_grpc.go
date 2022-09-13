@@ -47,6 +47,12 @@ func MakeGRPCServer(endpoints Endpoints, options ...grpctransport.ServerOption) 
 			EncodeGRPCWebsiteRecommendResponse,
 			serverOptions...,
 		),
+		websiteimport: grpctransport.NewServer(
+			endpoints.WebsiteImportEndpoint,
+			DecodeGRPCWebsiteImportRequest,
+			EncodeGRPCWebsiteImportResponse,
+			serverOptions...,
+		),
 	}
 }
 
@@ -55,6 +61,7 @@ type grpcServer struct {
 	websitecategorylist grpctransport.Handler
 	websitepage         grpctransport.Handler
 	websiterecommend    grpctransport.Handler
+	websiteimport       grpctransport.Handler
 }
 
 // Methods for grpcServer to implement WebsitesvcServer interface
@@ -83,6 +90,14 @@ func (s *grpcServer) WebsiteRecommend(ctx context.Context, req *pb.WebsiteRecomm
 	return rep.(*pb.WebsiteRecommendResponse), nil
 }
 
+func (s *grpcServer) WebsiteImport(ctx context.Context, req *pb.WebsiteImportRequest) (*pb.WebsiteImportResponse, error) {
+	_, rep, err := s.websiteimport.ServeGRPC(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+	return rep.(*pb.WebsiteImportResponse), nil
+}
+
 // Server Decode
 
 // DecodeGRPCWebsiteCategoryListRequest is a transport/grpc.DecodeRequestFunc that converts a
@@ -106,6 +121,13 @@ func DecodeGRPCWebsiteRecommendRequest(_ context.Context, grpcReq interface{}) (
 	return req, nil
 }
 
+// DecodeGRPCWebsiteImportRequest is a transport/grpc.DecodeRequestFunc that converts a
+// gRPC websiteimport request to a user-domain websiteimport request. Primarily useful in a server.
+func DecodeGRPCWebsiteImportRequest(_ context.Context, grpcReq interface{}) (interface{}, error) {
+	req := grpcReq.(*pb.WebsiteImportRequest)
+	return req, nil
+}
+
 // Server Encode
 
 // EncodeGRPCWebsiteCategoryListResponse is a transport/grpc.EncodeResponseFunc that converts a
@@ -126,6 +148,13 @@ func EncodeGRPCWebsitePageResponse(_ context.Context, response interface{}) (int
 // user-domain websiterecommend response to a gRPC websiterecommend reply. Primarily useful in a server.
 func EncodeGRPCWebsiteRecommendResponse(_ context.Context, response interface{}) (interface{}, error) {
 	resp := response.(*pb.WebsiteRecommendResponse)
+	return resp, nil
+}
+
+// EncodeGRPCWebsiteImportResponse is a transport/grpc.EncodeResponseFunc that converts a
+// user-domain websiteimport response to a gRPC websiteimport reply. Primarily useful in a server.
+func EncodeGRPCWebsiteImportResponse(_ context.Context, response interface{}) (interface{}, error) {
+	resp := response.(*pb.WebsiteImportResponse)
 	return resp, nil
 }
 

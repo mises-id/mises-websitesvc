@@ -75,10 +75,24 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.WebsitesvcServer, e
 		).Endpoint()
 	}
 
+	var websiteimportEndpoint endpoint.Endpoint
+	{
+		websiteimportEndpoint = grpctransport.NewClient(
+			conn,
+			"websitesvc.Websitesvc",
+			"WebsiteImport",
+			EncodeGRPCWebsiteImportRequest,
+			DecodeGRPCWebsiteImportResponse,
+			pb.WebsiteImportResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
 	return svc.Endpoints{
 		WebsiteCategoryListEndpoint: websitecategorylistEndpoint,
 		WebsitePageEndpoint:         websitepageEndpoint,
 		WebsiteRecommendEndpoint:    websiterecommendEndpoint,
+		WebsiteImportEndpoint:       websiteimportEndpoint,
 	}, nil
 }
 
@@ -105,6 +119,13 @@ func DecodeGRPCWebsiteRecommendResponse(_ context.Context, grpcReply interface{}
 	return reply, nil
 }
 
+// DecodeGRPCWebsiteImportResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC websiteimport reply to a user-domain websiteimport response. Primarily useful in a client.
+func DecodeGRPCWebsiteImportResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.WebsiteImportResponse)
+	return reply, nil
+}
+
 // GRPC Client Encode
 
 // EncodeGRPCWebsiteCategoryListRequest is a transport/grpc.EncodeRequestFunc that converts a
@@ -125,6 +146,13 @@ func EncodeGRPCWebsitePageRequest(_ context.Context, request interface{}) (inter
 // user-domain websiterecommend request to a gRPC websiterecommend request. Primarily useful in a client.
 func EncodeGRPCWebsiteRecommendRequest(_ context.Context, request interface{}) (interface{}, error) {
 	req := request.(*pb.WebsiteRecommendRequest)
+	return req, nil
+}
+
+// EncodeGRPCWebsiteImportRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain websiteimport request to a gRPC websiteimport request. Primarily useful in a client.
+func EncodeGRPCWebsiteImportRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.WebsiteImportRequest)
 	return req, nil
 }
 

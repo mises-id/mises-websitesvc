@@ -96,6 +96,19 @@ func MakeHTTPHandler(endpoints Endpoints, responseEncoder httptransport.EncodeRe
 		responseEncoder,
 		serverOptions...,
 	))
+
+	m.Methods("GET").Path("/website/import/").Handler(httptransport.NewServer(
+		endpoints.WebsiteImportEndpoint,
+		DecodeHTTPWebsiteImportZeroRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+	m.Methods("GET").Path("/website/import").Handler(httptransport.NewServer(
+		endpoints.WebsiteImportEndpoint,
+		DecodeHTTPWebsiteImportOneRequest,
+		responseEncoder,
+		serverOptions...,
+	))
 	return m
 }
 
@@ -452,6 +465,90 @@ func DecodeHTTPWebsiteRecommendOneRequest(_ context.Context, r *http.Request) (i
 			return nil, errors.Wrap(err, fmt.Sprintf("Error while extracting ListNumWebsiteRecommend from query, queryParams: %v", queryParams))
 		}
 		req.ListNum = ListNumWebsiteRecommend
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPWebsiteImportZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded websiteimport request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPWebsiteImportZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.WebsiteImportRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if FilePathWebsiteImportStrArr, ok := queryParams["file_path"]; ok {
+		FilePathWebsiteImportStr := FilePathWebsiteImportStrArr[0]
+		FilePathWebsiteImport := FilePathWebsiteImportStr
+		req.FilePath = FilePathWebsiteImport
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPWebsiteImportOneRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded websiteimport request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPWebsiteImportOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.WebsiteImportRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if FilePathWebsiteImportStrArr, ok := queryParams["file_path"]; ok {
+		FilePathWebsiteImportStr := FilePathWebsiteImportStrArr[0]
+		FilePathWebsiteImport := FilePathWebsiteImportStr
+		req.FilePath = FilePathWebsiteImport
 	}
 
 	return &req, err

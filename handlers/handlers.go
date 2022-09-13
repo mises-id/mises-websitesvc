@@ -72,5 +72,22 @@ func (s websitesvcService) WebsitePage(ctx context.Context, in *pb.WebsitePageRe
 
 func (s websitesvcService) WebsiteRecommend(ctx context.Context, in *pb.WebsiteRecommendRequest) (*pb.WebsiteRecommendResponse, error) {
 	var resp pb.WebsiteRecommendResponse
+	params := &website.WebsiteRecommendInput{Num: uint(in.ListNum)}
+	data, err := website.RecommendWebsite(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	resp.Code = 0
+	resp.Data = factory.NewWebsiteSlice(data)
+	return &resp, nil
+}
+
+func (s websitesvcService) WebsiteImport(ctx context.Context, in *pb.WebsiteImportRequest) (*pb.WebsiteImportResponse, error) {
+	var resp pb.WebsiteImportResponse
+	err := website.ImportWebsite(ctx, in.FilePath)
+	if err != nil {
+		return nil, err
+	}
+	resp.Code = 0
 	return &resp, nil
 }
