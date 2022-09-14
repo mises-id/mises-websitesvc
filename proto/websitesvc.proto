@@ -70,6 +70,8 @@ message WebsiteCategoryListRequest {
 message WebsiteCategory {
   string id = 1;
   string name = 2;
+  string desc = 3;
+  string type_string = 4;
 }
 
 message WebsiteCategoryListResponse {
@@ -81,13 +83,13 @@ message WebsitePageRequest {
   string type = 1;
   string website_category_id = 2;
   string Keywords = 3;
-  PageQuick paginator = 4;
+  Page paginator = 4;
 }
 
 message WebsitePageResponse {
   uint64 code = 1;
   repeated Website data = 2;
-  PageQuick paginator = 3;
+  Page paginator = 3;
 }
 
 message Website {
@@ -98,6 +100,7 @@ message Website {
   string logo = 5;
   string desc = 6;
   string type = 7;
+  WebsiteCategory website_category = 8;
 }
 
 message WebsiteRecommendRequest {

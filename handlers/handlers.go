@@ -37,10 +37,8 @@ func (s websitesvcService) WebsitePage(ctx context.Context, in *pb.WebsitePageRe
 	var resp pb.WebsitePageResponse
 	params := &search.WebsiteSearch{}
 	if in.Paginator != nil {
-		params.PageParams = &pagination.PageQuickParams{
-			Limit:  int64(in.Paginator.Limit),
-			NextID: in.Paginator.NextId,
-		}
+		params.PageNum = int64(in.Paginator.PageNum)
+		params.PageSize = int64(in.Paginator.PageSize)
 	}
 	params.Type = enum.Web3
 	if in.Type != "" {
@@ -60,12 +58,14 @@ func (s websitesvcService) WebsitePage(ctx context.Context, in *pb.WebsitePageRe
 	if err != nil {
 		return nil, err
 	}
-	quickpage := page.BuildJSONResult().(*pagination.QuickPagination)
 	resp.Code = 0
 	resp.Data = factory.NewWebsiteSlice(data)
-	resp.Paginator = &pb.PageQuick{
-		Limit:  uint64(quickpage.Limit),
-		NextId: quickpage.NextID,
+	tradpage := page.BuildJSONResult().(*pagination.TraditionalPagination)
+	resp.Paginator = &pb.Page{
+		PageNum:      uint64(tradpage.PageNum),
+		PageSize:     uint64(tradpage.PageSize),
+		TotalPage:    uint64(tradpage.TotalPages),
+		TotalRecords: uint64(tradpage.TotalRecords),
 	}
 	return &resp, nil
 }
