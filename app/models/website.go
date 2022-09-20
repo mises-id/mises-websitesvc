@@ -7,6 +7,7 @@ import (
 	"github.com/mises-id/mises-websitesvc/app/models/enum"
 	"github.com/mises-id/mises-websitesvc/lib/db"
 	"github.com/mises-id/mises-websitesvc/lib/pagination"
+	"github.com/mises-id/mises-websitesvc/lib/storage/view"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -70,6 +71,10 @@ func preloadWebsite(ctx context.Context, lists ...*Website) error {
 	}
 	for _, v := range lists {
 		v.WebsiteCategory = dataMap[v.CategoryID]
+		vlogo, err := view.ImageClient.GetFileUrlOne(ctx, v.Logo)
+		if err == nil {
+			v.Logo = vlogo
+		}
 	}
 	return nil
 }
