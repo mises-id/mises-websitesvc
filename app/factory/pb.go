@@ -24,10 +24,11 @@ func NewWebsiteCategory(data *models.WebsiteCategory) *pb.WebsiteCategory {
 		return nil
 	}
 	resp := pb.WebsiteCategory{
-		Id:         docID(data.ID),
-		Name:       data.Name,
-		Desc:       data.Desc,
-		TypeString: data.Type.String(),
+		Id:          docID(data.ID),
+		Name:        data.Name,
+		ShorterName: data.ShorterName,
+		Desc:        data.Desc,
+		TypeString:  data.Type.String(),
 	}
 
 	return &resp

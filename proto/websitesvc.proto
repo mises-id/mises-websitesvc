@@ -72,6 +72,7 @@ message WebsiteCategory {
   string name = 2;
   string desc = 3;
   string type_string = 4;
+  string shorter_name = 5;
 }
 
 message WebsiteCategoryListResponse {

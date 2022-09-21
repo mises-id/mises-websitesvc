@@ -12,13 +12,14 @@ import (
 
 type (
 	WebsiteCategory struct {
-		ID        primitive.ObjectID `bson:"_id,omitempty"`
-		Type      enum.WebsiteType   `bson:"type"`
-		Name      string             `bson:"name"`
-		Desc      string             `bson:"desc"`
-		SortNum   uint32             `bson:"sort_num"`
-		UpdatedAt time.Time          `bson:"updated_at"`
-		CreatedAt time.Time          `bson:"created_at"`
+		ID          primitive.ObjectID `bson:"_id,omitempty"`
+		Type        enum.WebsiteType   `bson:"type"`
+		Name        string             `bson:"name"`
+		ShorterName string             `bson:"shorter_name"`
+		Desc        string             `bson:"desc"`
+		SortNum     uint32             `bson:"sort_num"`
+		UpdatedAt   time.Time          `bson:"updated_at"`
+		CreatedAt   time.Time          `bson:"created_at"`
 	}
 )
 

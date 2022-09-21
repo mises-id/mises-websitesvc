@@ -24,7 +24,8 @@ type (
 		Keywords        []string           `bson:"keywords"` //搜索关键词
 		IsRec           bool               `bson:"is_rec"`   //是否推荐，优先展示推荐站点
 		IsHot           bool               `bson:"is_hot"`
-		SortNum         uint32             `bson:"sort_num"`  //排序号
+		SortNum         uint32             `bson:"sort_num"` //排序号
+		RecSortNum      uint32             `bson:"rec_sort_num"`
 		ClickNum        uint32             `bson:"click_num"` //点击数
 		Status          enum.StatusType    `bson:"status"`    //1 启用， 2 未启用 3 删除
 		Remark          string             `bson:"remark"`
@@ -98,5 +99,5 @@ func ListWebsite(ctx context.Context, params IAdminParams) ([]*Website, error) {
 	if err != nil {
 		return nil, err
 	}
-	return res, nil
+	return res, preloadWebsite(ctx, res...)
 }

@@ -32,7 +32,9 @@ func PageWebsite(ctx context.Context, in *WebsiteInput) ([]*models.Website, pagi
 
 func RecommendWebsite(ctx context.Context, in *WebsiteRecommendInput) ([]*models.Website, error) {
 	var list_num uint
-	params := &search.WebsiteSearch{}
+	params := &search.WebsiteSearch{
+		SortBy: "rec",
+	}
 	list_num = 8
 	if in.Num > 0 && in.Num <= 200 {
 		list_num = in.Num

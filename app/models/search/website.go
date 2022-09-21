@@ -66,6 +66,12 @@ func (params *WebsiteSearch) BuildAdminSearch(chain *odm.DB) *odm.DB {
 			bson.E{"sort_num", -1},
 			bson.E{"title", 1},
 		})
+	case "rec":
+		chain = chain.Sort(bson.D{
+			bson.E{"is_rec", -1},
+			bson.E{"rec_sort_num", -1},
+			bson.E{"title", 1},
+		})
 	case "id_desc":
 		chain = chain.Sort(bson.M{"_id": -1})
 	}
