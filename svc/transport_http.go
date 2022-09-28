@@ -195,6 +195,12 @@ func DecodeHTTPWebsiteCategoryListZeroRequest(_ context.Context, r *http.Request
 	queryParams := r.URL.Query()
 	_ = queryParams
 
+	if TypeWebsiteCategoryListStrArr, ok := queryParams["type"]; ok {
+		TypeWebsiteCategoryListStr := TypeWebsiteCategoryListStrArr[0]
+		TypeWebsiteCategoryList := TypeWebsiteCategoryListStr
+		req.Type = TypeWebsiteCategoryList
+	}
+
 	if ListNumWebsiteCategoryListStrArr, ok := queryParams["list_num"]; ok {
 		ListNumWebsiteCategoryListStr := ListNumWebsiteCategoryListStrArr[0]
 		ListNumWebsiteCategoryList, err := strconv.ParseUint(ListNumWebsiteCategoryListStr, 10, 64)
@@ -239,6 +245,12 @@ func DecodeHTTPWebsiteCategoryListOneRequest(_ context.Context, r *http.Request)
 
 	queryParams := r.URL.Query()
 	_ = queryParams
+
+	if TypeWebsiteCategoryListStrArr, ok := queryParams["type"]; ok {
+		TypeWebsiteCategoryListStr := TypeWebsiteCategoryListStrArr[0]
+		TypeWebsiteCategoryList := TypeWebsiteCategoryListStr
+		req.Type = TypeWebsiteCategoryList
+	}
 
 	if ListNumWebsiteCategoryListStrArr, ok := queryParams["list_num"]; ok {
 		ListNumWebsiteCategoryListStr := ListNumWebsiteCategoryListStrArr[0]
@@ -413,6 +425,12 @@ func DecodeHTTPWebsiteRecommendZeroRequest(_ context.Context, r *http.Request) (
 	queryParams := r.URL.Query()
 	_ = queryParams
 
+	if TypeWebsiteRecommendStrArr, ok := queryParams["type"]; ok {
+		TypeWebsiteRecommendStr := TypeWebsiteRecommendStrArr[0]
+		TypeWebsiteRecommend := TypeWebsiteRecommendStr
+		req.Type = TypeWebsiteRecommend
+	}
+
 	if ListNumWebsiteRecommendStrArr, ok := queryParams["list_num"]; ok {
 		ListNumWebsiteRecommendStr := ListNumWebsiteRecommendStrArr[0]
 		ListNumWebsiteRecommend, err := strconv.ParseUint(ListNumWebsiteRecommendStr, 10, 64)
@@ -457,6 +475,12 @@ func DecodeHTTPWebsiteRecommendOneRequest(_ context.Context, r *http.Request) (i
 
 	queryParams := r.URL.Query()
 	_ = queryParams
+
+	if TypeWebsiteRecommendStrArr, ok := queryParams["type"]; ok {
+		TypeWebsiteRecommendStr := TypeWebsiteRecommendStrArr[0]
+		TypeWebsiteRecommend := TypeWebsiteRecommendStr
+		req.Type = TypeWebsiteRecommend
+	}
 
 	if ListNumWebsiteRecommendStrArr, ok := queryParams["list_num"]; ok {
 		ListNumWebsiteRecommendStr := ListNumWebsiteRecommendStrArr[0]

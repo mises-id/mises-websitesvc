@@ -64,7 +64,8 @@ message Page {
 }
 
 message WebsiteCategoryListRequest {
-  uint64 list_num = 1;
+  string type = 1;
+  uint64 list_num = 2;
 }
 
 message WebsiteCategory {
@@ -105,7 +106,8 @@ message Website {
 }
 
 message WebsiteRecommendRequest {
-  uint64 list_num = 1;
+  string type = 1;
+  uint64 list_num = 2;
 }
 
 message WebsiteRecommendResponse {
