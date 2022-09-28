@@ -23,8 +23,16 @@ type websitesvcService struct{}
 
 func (s websitesvcService) WebsiteCategoryList(ctx context.Context, in *pb.WebsiteCategoryListRequest) (*pb.WebsiteCategoryListResponse, error) {
 	var resp pb.WebsiteCategoryListResponse
-	params := &website_category.WebsiteCategoryListInput{}
-	data, err := website_category.ListNumWebsiteCategory(ctx, params)
+	params := &search.WebsiteCategorySearch{}
+	params.Type = enum.Web3
+	if in.Type != "" {
+		wtype, err := enum.WebsiteTypeFromString(in.Type)
+		if err != nil {
+			return nil, err
+		}
+		params.Type = wtype
+	}
+	data, err := website_category.ListNumWebsiteCategory(ctx, &website_category.WebsiteCategoryListInput{WebsiteCategorySearch: params})
 	if err != nil {
 		return nil, err
 	}
@@ -43,9 +51,10 @@ func (s websitesvcService) WebsitePage(ctx context.Context, in *pb.WebsitePageRe
 	params.Type = enum.Web3
 	if in.Type != "" {
 		wtype, err := enum.WebsiteTypeFromString(in.Type)
-		if err == nil {
-			params.Type = wtype
+		if err != nil {
+			return nil, err
 		}
+		params.Type = wtype
 	}
 	if in.WebsiteCategoryId != "" {
 		website_category_id, err := primitive.ObjectIDFromHex(in.WebsiteCategoryId)

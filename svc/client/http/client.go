@@ -264,6 +264,8 @@ func EncodeHTTPWebsiteCategoryListZeroRequest(_ context.Context, r *http.Request
 	var tmp []byte
 	_ = tmp
 
+	values.Add("type", fmt.Sprint(req.Type))
+
 	values.Add("list_num", fmt.Sprint(req.ListNum))
 
 	r.URL.RawQuery = values.Encode()
@@ -299,6 +301,8 @@ func EncodeHTTPWebsiteCategoryListOneRequest(_ context.Context, r *http.Request,
 	values := r.URL.Query()
 	var tmp []byte
 	_ = tmp
+
+	values.Add("type", fmt.Sprint(req.Type))
 
 	values.Add("list_num", fmt.Sprint(req.ListNum))
 
@@ -432,6 +436,8 @@ func EncodeHTTPWebsiteRecommendZeroRequest(_ context.Context, r *http.Request, r
 	var tmp []byte
 	_ = tmp
 
+	values.Add("type", fmt.Sprint(req.Type))
+
 	values.Add("list_num", fmt.Sprint(req.ListNum))
 
 	r.URL.RawQuery = values.Encode()
@@ -467,6 +473,8 @@ func EncodeHTTPWebsiteRecommendOneRequest(_ context.Context, r *http.Request, re
 	values := r.URL.Query()
 	var tmp []byte
 	_ = tmp
+
+	values.Add("type", fmt.Sprint(req.Type))
 
 	values.Add("list_num", fmt.Sprint(req.ListNum))
 

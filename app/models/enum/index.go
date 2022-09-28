@@ -10,7 +10,7 @@ type (
 const (
 	WebsiteNil WebsiteType = 0
 	Web3       WebsiteType = 1
-	Extension  WebsiteType = 2
+	Extensions WebsiteType = 2
 	//StatusType
 	StatusOpen   StatusType = 1
 	StatusClose  StatusType = 2
@@ -21,7 +21,7 @@ var (
 	websiteTypeMap = map[WebsiteType]string{
 		WebsiteNil: "",
 		Web3:       "web3",
-		Extension:  "Extension",
+		Extensions: "extensions",
 	}
 	websiteTypeStringMap = map[string]WebsiteType{}
 )
