@@ -13,6 +13,9 @@ func docID(id primitive.ObjectID) string {
 	return id.Hex()
 }
 func NewWebsiteCategorySlice(data []*models.WebsiteCategory) []*pb.WebsiteCategory {
+	if data == nil {
+		return nil
+	}
 	result := make([]*pb.WebsiteCategory, len(data))
 	for i, v := range data {
 		result[i] = NewWebsiteCategory(v)
@@ -25,12 +28,13 @@ func NewWebsiteCategory(data *models.WebsiteCategory) *pb.WebsiteCategory {
 	}
 	resp := pb.WebsiteCategory{
 		Id:          docID(data.ID),
+		ParentId:    docID(data.ParentID),
 		Name:        data.Name,
 		ShorterName: data.ShorterName,
 		Desc:        data.Desc,
 		TypeString:  data.Type.String(),
 	}
-
+	resp.ChildrenCategory = NewWebsiteCategorySlice(data.ChildrenCategory)
 	return &resp
 }
 func NewWebsiteSlice(data []*models.Website) []*pb.Website {
@@ -47,6 +51,7 @@ func NewWebsite(data *models.Website) *pb.Website {
 	resp := pb.Website{
 		Id:                docID(data.ID),
 		WebsiteCategoryId: docID(data.CategoryID),
+		SubcategoryId:     docID(data.SubcategoryID),
 		Title:             data.Title,
 		Logo:              data.Logo,
 		Url:               data.Url,
@@ -54,6 +59,9 @@ func NewWebsite(data *models.Website) *pb.Website {
 	}
 	if data.WebsiteCategory != nil {
 		resp.WebsiteCategory = NewWebsiteCategory(data.WebsiteCategory)
+	}
+	if data.Subcategory != nil {
+		resp.Subcategory = NewWebsiteCategory(data.Subcategory)
 	}
 	return &resp
 }

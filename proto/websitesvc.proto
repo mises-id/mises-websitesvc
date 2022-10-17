@@ -74,6 +74,8 @@ message WebsiteCategory {
   string desc = 3;
   string type_string = 4;
   string shorter_name = 5;
+  string parent_id = 6;
+  repeated WebsiteCategory children_category = 7;
 }
 
 message WebsiteCategoryListResponse {
@@ -86,6 +88,7 @@ message WebsitePageRequest {
   string website_category_id = 2;
   string Keywords = 3;
   Page paginator = 4;
+  string subcategory_id = 5;
 }
 
 message WebsitePageResponse {
@@ -103,6 +106,8 @@ message Website {
   string desc = 6;
   string type = 7;
   WebsiteCategory website_category = 8;
+  WebsiteCategory subcategory = 9;
+  string subcategory_id = 10;
 }
 
 message WebsiteRecommendRequest {

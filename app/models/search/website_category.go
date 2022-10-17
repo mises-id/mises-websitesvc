@@ -27,10 +27,10 @@ type (
 func (params *WebsiteCategorySearch) BuildAdminSearch(chain *odm.DB) *odm.DB {
 	//base
 	//where
-
 	if params.Type > 0 {
 		chain = chain.Where(bson.M{"type": params.Type})
 	}
+	chain = chain.Where(bson.M{"parent_id": nil})
 	//sort
 	chain = chain.Sort(bson.M{"sort_num": -1})
 	//limit

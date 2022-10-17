@@ -15,8 +15,9 @@ import (
 type (
 	Website struct {
 		ID              primitive.ObjectID `bson:"_id,omitempty"`
-		Type            enum.WebsiteType   `bson:"type"` //1 web3   2 extension
+		Type            enum.WebsiteType   `bson:"type"` //1 web3   2 extensions
 		CategoryID      primitive.ObjectID `bson:"category_id"`
+		SubcategoryID   primitive.ObjectID `bson:"subcategory_id"`
 		Title           string             `bson:"title"` //标题
 		Desc            string             `bson:"desc"`  //功能描述
 		Url             string             `bson:"url"`
@@ -26,12 +27,15 @@ type (
 		IsHot           bool               `bson:"is_hot"`
 		SortNum         uint32             `bson:"sort_num"` //排序号
 		RecSortNum      uint32             `bson:"rec_sort_num"`
+		CategorySort    uint32             `bson:"category_sort"`
+		SubcategorySort uint32             `bson:"subcategory_sort"`
 		ClickNum        uint32             `bson:"click_num"` //点击数
 		Status          enum.StatusType    `bson:"status"`    //1 启用， 2 未启用 3 删除
 		Remark          string             `bson:"remark"`
 		UpdatedAt       time.Time          `bson:"updated_at"`
 		CreatedAt       time.Time          `bson:"created_at"`
 		WebsiteCategory *WebsiteCategory   `bson:"-" json:"website_category"`
+		Subcategory     *WebsiteCategory   `bson:"-" json:"subcategory"`
 	}
 )
 
@@ -61,6 +65,7 @@ func preloadWebsite(ctx context.Context, lists ...*Website) error {
 	cagegoryIDs := make([]primitive.ObjectID, 0)
 	for _, v := range lists {
 		cagegoryIDs = append(cagegoryIDs, v.CategoryID)
+		cagegoryIDs = append(cagegoryIDs, v.SubcategoryID)
 	}
 	categoryList, err := FindWebsiteCategoryByIDs(ctx, cagegoryIDs...)
 	if err != nil && err != mongo.ErrNoDocuments {
@@ -72,6 +77,7 @@ func preloadWebsite(ctx context.Context, lists ...*Website) error {
 	}
 	for _, v := range lists {
 		v.WebsiteCategory = dataMap[v.CategoryID]
+		v.Subcategory = dataMap[v.SubcategoryID]
 		vlogo, err := view.ImageClient.GetFileUrlOne(ctx, v.Logo)
 		if err == nil {
 			v.Logo = vlogo

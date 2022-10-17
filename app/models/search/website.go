@@ -13,12 +13,13 @@ type (
 		ID                primitive.ObjectID
 		Type              enum.WebsiteType
 		WebsiteCategoryID primitive.ObjectID
+		SubcategoryID     primitive.ObjectID
 		Statuses          []enum.StatusType
 		Keywords          string
 		RecState          int
 		HotState          int
 		//sort
-		SortBy string
+		SortBy string `json:"sort_by" query:"sort_by"`
 		//limit
 		ListNum int64
 		//page
@@ -40,7 +41,9 @@ func (params *WebsiteSearch) BuildAdminSearch(chain *odm.DB) *odm.DB {
 	if params.WebsiteCategoryID != primitive.NilObjectID {
 		chain = chain.Where(bson.M{"category_id": params.WebsiteCategoryID})
 	}
-
+	if params.SubcategoryID != primitive.NilObjectID {
+		chain = chain.Where(bson.M{"subcategory_id": params.SubcategoryID})
+	}
 	if len(params.Statuses) > 0 {
 		chain = chain.Where(bson.M{"status": bson.M{"$in": params.Statuses}})
 	} else {
@@ -58,10 +61,23 @@ func (params *WebsiteSearch) BuildAdminSearch(chain *odm.DB) *odm.DB {
 	if params.RecState == 2 {
 		chain = chain.Where(bson.M{"is_rec": false})
 	}
+	if params.Type == enum.Extensions && params.SortBy == "" {
+		params.SortBy = "category"
+	}
 	//sort
 	switch params.SortBy {
 	default:
 		chain = chain.Sort(bson.D{
+			bson.E{"is_hot", -1},
+			bson.E{"sort_num", -1},
+			bson.E{"title", 1},
+		})
+	case "category":
+		chain = chain.Sort(bson.D{
+			bson.E{"category_sort", -1},
+			bson.E{"category_id", 1},
+			bson.E{"subcategory_sort", -1},
+			bson.E{"subcategory_id", 1},
 			bson.E{"is_hot", -1},
 			bson.E{"sort_num", -1},
 			bson.E{"title", 1},

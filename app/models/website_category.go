@@ -12,14 +12,16 @@ import (
 
 type (
 	WebsiteCategory struct {
-		ID          primitive.ObjectID `bson:"_id,omitempty"`
-		Type        enum.WebsiteType   `bson:"type"`
-		Name        string             `bson:"name"`
-		ShorterName string             `bson:"shorter_name"`
-		Desc        string             `bson:"desc"`
-		SortNum     uint32             `bson:"sort_num"`
-		UpdatedAt   time.Time          `bson:"updated_at"`
-		CreatedAt   time.Time          `bson:"created_at"`
+		ID               primitive.ObjectID `bson:"_id,omitempty"`
+		ParentID         primitive.ObjectID `bson:"parent_id"`
+		Type             enum.WebsiteType   `bson:"type"`
+		Name             string             `bson:"name"`
+		ShorterName      string             `bson:"shorter_name"`
+		Desc             string             `bson:"desc"`
+		SortNum          uint32             `bson:"sort_num"`
+		UpdatedAt        time.Time          `bson:"updated_at"`
+		CreatedAt        time.Time          `bson:"created_at"`
+		ChildrenCategory []*WebsiteCategory `bson:"-"`
 	}
 )
 
@@ -53,7 +55,7 @@ func ListWebsiteCategory(ctx context.Context, params IAdminParams) ([]*WebsiteCa
 	if err != nil {
 		return nil, err
 	}
-	return res, nil
+	return res, preloadWebsiteCategory(ctx, res...)
 }
 func FindWebsiteCategoryByIDs(ctx context.Context, ids ...primitive.ObjectID) ([]*WebsiteCategory, error) {
 	res := make([]*WebsiteCategory, 0)
@@ -61,9 +63,26 @@ func FindWebsiteCategoryByIDs(ctx context.Context, ids ...primitive.ObjectID) ([
 	if err != nil {
 		return nil, err
 	}
-	return res, preloadWebsiteCategory(ctx, res...)
+	return res, nil
+}
+
+func FindWebsiteCategoryByParentID(ctx context.Context, parent_id primitive.ObjectID) ([]*WebsiteCategory, error) {
+	res := make([]*WebsiteCategory, 0)
+	err := db.ODM(ctx).Find(&res, bson.M{"parent_id": parent_id}).Error
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func preloadWebsiteCategory(ctx context.Context, lists ...*WebsiteCategory) error {
+	for _, v := range lists {
+		if v.ParentID.IsZero() {
+			children_category, err := FindWebsiteCategoryByParentID(ctx, v.ID)
+			if err == nil {
+				v.ChildrenCategory = children_category
+			}
+		}
+	}
 	return nil
 }

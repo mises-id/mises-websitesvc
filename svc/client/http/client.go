@@ -354,6 +354,8 @@ func EncodeHTTPWebsitePageZeroRequest(_ context.Context, r *http.Request, reques
 	strval = string(tmp)
 	values.Add("paginator", strval)
 
+	values.Add("subcategory_id", fmt.Sprint(req.SubcategoryId))
+
 	r.URL.RawQuery = values.Encode()
 	return nil
 }
@@ -400,6 +402,8 @@ func EncodeHTTPWebsitePageOneRequest(_ context.Context, r *http.Request, request
 	}
 	strval = string(tmp)
 	values.Add("paginator", strval)
+
+	values.Add("subcategory_id", fmt.Sprint(req.SubcategoryId))
 
 	r.URL.RawQuery = values.Encode()
 	return nil

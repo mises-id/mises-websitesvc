@@ -325,6 +325,12 @@ func DecodeHTTPWebsitePageZeroRequest(_ context.Context, r *http.Request) (inter
 
 	}
 
+	if SubcategoryIdWebsitePageStrArr, ok := queryParams["subcategory_id"]; ok {
+		SubcategoryIdWebsitePageStr := SubcategoryIdWebsitePageStrArr[0]
+		SubcategoryIdWebsitePage := SubcategoryIdWebsitePageStr
+		req.SubcategoryId = SubcategoryIdWebsitePage
+	}
+
 	return &req, err
 }
 
@@ -387,6 +393,12 @@ func DecodeHTTPWebsitePageOneRequest(_ context.Context, r *http.Request) (interf
 			return nil, errors.Wrapf(err, "couldn't decode PaginatorWebsitePage from %v", PaginatorWebsitePageStr)
 		}
 
+	}
+
+	if SubcategoryIdWebsitePageStrArr, ok := queryParams["subcategory_id"]; ok {
+		SubcategoryIdWebsitePageStr := SubcategoryIdWebsitePageStrArr[0]
+		SubcategoryIdWebsitePage := SubcategoryIdWebsitePageStr
+		req.SubcategoryId = SubcategoryIdWebsitePage
 	}
 
 	return &req, err

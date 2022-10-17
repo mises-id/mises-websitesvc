@@ -62,6 +62,12 @@ func (s websitesvcService) WebsitePage(ctx context.Context, in *pb.WebsitePageRe
 			params.WebsiteCategoryID = website_category_id
 		}
 	}
+	if in.SubcategoryId != "" {
+		subcategory_id, err := primitive.ObjectIDFromHex(in.SubcategoryId)
+		if err == nil {
+			params.SubcategoryID = subcategory_id
+		}
+	}
 	params.Keywords = in.Keywords
 	data, page, err := website.PageWebsite(ctx, &website.WebsiteInput{WebsiteSearch: params})
 	if err != nil {
