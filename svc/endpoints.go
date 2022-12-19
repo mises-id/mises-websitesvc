@@ -33,10 +33,16 @@ import (
 // single type that implements the Service interface. For example, you might
 // construct individual endpoints using transport/http.NewClient, combine them into an Endpoints, and return it to the caller as a Service.
 type Endpoints struct {
-	WebsiteCategoryListEndpoint endpoint.Endpoint
-	WebsitePageEndpoint         endpoint.Endpoint
-	WebsiteRecommendEndpoint    endpoint.Endpoint
-	WebsiteImportEndpoint       endpoint.Endpoint
+	WebsiteCategoryListEndpoint           endpoint.Endpoint
+	WebsitePageEndpoint                   endpoint.Endpoint
+	WebsiteSearchEndpoint                 endpoint.Endpoint
+	WebsiteRecommendEndpoint              endpoint.Endpoint
+	WebsiteImportEndpoint                 endpoint.Endpoint
+	UpdateMetaMaskPhishingEndpoint        endpoint.Endpoint
+	UpdatePhishingSiteBlackOriginEndpoint endpoint.Endpoint
+	UpdatePhishingOriginByWebSiteEndpoint endpoint.Endpoint
+	UpdatePhishingSiteByWebsiteEndpoint   endpoint.Endpoint
+	PhishingCheckEndpoint                 endpoint.Endpoint
 }
 
 // Endpoints
@@ -57,6 +63,14 @@ func (e Endpoints) WebsitePage(ctx context.Context, in *pb.WebsitePageRequest) (
 	return response.(*pb.WebsitePageResponse), nil
 }
 
+func (e Endpoints) WebsiteSearch(ctx context.Context, in *pb.WebsiteSearchRequest) (*pb.WebsiteSearchResponse, error) {
+	response, err := e.WebsiteSearchEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.WebsiteSearchResponse), nil
+}
+
 func (e Endpoints) WebsiteRecommend(ctx context.Context, in *pb.WebsiteRecommendRequest) (*pb.WebsiteRecommendResponse, error) {
 	response, err := e.WebsiteRecommendEndpoint(ctx, in)
 	if err != nil {
@@ -71,6 +85,46 @@ func (e Endpoints) WebsiteImport(ctx context.Context, in *pb.WebsiteImportReques
 		return nil, err
 	}
 	return response.(*pb.WebsiteImportResponse), nil
+}
+
+func (e Endpoints) UpdateMetaMaskPhishing(ctx context.Context, in *pb.UpdateMetaMaskPhishingRequest) (*pb.UpdateMetaMaskPhishingResponse, error) {
+	response, err := e.UpdateMetaMaskPhishingEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.UpdateMetaMaskPhishingResponse), nil
+}
+
+func (e Endpoints) UpdatePhishingSiteBlackOrigin(ctx context.Context, in *pb.UpdatePhishingSiteBlackOriginRequest) (*pb.UpdatePhishingSiteBlackOriginResponse, error) {
+	response, err := e.UpdatePhishingSiteBlackOriginEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.UpdatePhishingSiteBlackOriginResponse), nil
+}
+
+func (e Endpoints) UpdatePhishingOriginByWebSite(ctx context.Context, in *pb.UpdatePhishingOriginByWebSiteRequest) (*pb.UpdatePhishingOriginByWebSiteResponse, error) {
+	response, err := e.UpdatePhishingOriginByWebSiteEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.UpdatePhishingOriginByWebSiteResponse), nil
+}
+
+func (e Endpoints) UpdatePhishingSiteByWebsite(ctx context.Context, in *pb.UpdatePhishingSiteByWebsiteRequest) (*pb.UpdatePhishingSiteByWebsiteResponse, error) {
+	response, err := e.UpdatePhishingSiteByWebsiteEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.UpdatePhishingSiteByWebsiteResponse), nil
+}
+
+func (e Endpoints) PhishingCheck(ctx context.Context, in *pb.PhishingCheckRequest) (*pb.PhishingCheckResponse, error) {
+	response, err := e.PhishingCheckEndpoint(ctx, in)
+	if err != nil {
+		return nil, err
+	}
+	return response.(*pb.PhishingCheckResponse), nil
 }
 
 // Make Endpoints
@@ -90,6 +144,17 @@ func MakeWebsitePageEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(*pb.WebsitePageRequest)
 		v, err := s.WebsitePage(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
+func MakeWebsiteSearchEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.WebsiteSearchRequest)
+		v, err := s.WebsiteSearch(ctx, req)
 		if err != nil {
 			return nil, err
 		}
@@ -119,6 +184,61 @@ func MakeWebsiteImportEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
 	}
 }
 
+func MakeUpdateMetaMaskPhishingEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.UpdateMetaMaskPhishingRequest)
+		v, err := s.UpdateMetaMaskPhishing(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
+func MakeUpdatePhishingSiteBlackOriginEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.UpdatePhishingSiteBlackOriginRequest)
+		v, err := s.UpdatePhishingSiteBlackOrigin(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
+func MakeUpdatePhishingOriginByWebSiteEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.UpdatePhishingOriginByWebSiteRequest)
+		v, err := s.UpdatePhishingOriginByWebSite(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
+func MakeUpdatePhishingSiteByWebsiteEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.UpdatePhishingSiteByWebsiteRequest)
+		v, err := s.UpdatePhishingSiteByWebsite(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
+func MakePhishingCheckEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(*pb.PhishingCheckRequest)
+		v, err := s.PhishingCheck(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+		return v, nil
+	}
+}
+
 // WrapAllExcept wraps each Endpoint field of struct Endpoints with a
 // go-kit/kit/endpoint.Middleware.
 // Use this for applying a set of middlewares to every endpoint in the service.
@@ -126,10 +246,16 @@ func MakeWebsiteImportEndpoint(s pb.WebsitesvcServer) endpoint.Endpoint {
 // WrapAllExcept(middleware, "Status", "Ping")
 func (e *Endpoints) WrapAllExcept(middleware endpoint.Middleware, excluded ...string) {
 	included := map[string]struct{}{
-		"WebsiteCategoryList": {},
-		"WebsitePage":         {},
-		"WebsiteRecommend":    {},
-		"WebsiteImport":       {},
+		"WebsiteCategoryList":           {},
+		"WebsitePage":                   {},
+		"WebsiteSearch":                 {},
+		"WebsiteRecommend":              {},
+		"WebsiteImport":                 {},
+		"UpdateMetaMaskPhishing":        {},
+		"UpdatePhishingSiteBlackOrigin": {},
+		"UpdatePhishingOriginByWebSite": {},
+		"UpdatePhishingSiteByWebsite":   {},
+		"PhishingCheck":                 {},
 	}
 
 	for _, ex := range excluded {
@@ -146,11 +272,29 @@ func (e *Endpoints) WrapAllExcept(middleware endpoint.Middleware, excluded ...st
 		if inc == "WebsitePage" {
 			e.WebsitePageEndpoint = middleware(e.WebsitePageEndpoint)
 		}
+		if inc == "WebsiteSearch" {
+			e.WebsiteSearchEndpoint = middleware(e.WebsiteSearchEndpoint)
+		}
 		if inc == "WebsiteRecommend" {
 			e.WebsiteRecommendEndpoint = middleware(e.WebsiteRecommendEndpoint)
 		}
 		if inc == "WebsiteImport" {
 			e.WebsiteImportEndpoint = middleware(e.WebsiteImportEndpoint)
+		}
+		if inc == "UpdateMetaMaskPhishing" {
+			e.UpdateMetaMaskPhishingEndpoint = middleware(e.UpdateMetaMaskPhishingEndpoint)
+		}
+		if inc == "UpdatePhishingSiteBlackOrigin" {
+			e.UpdatePhishingSiteBlackOriginEndpoint = middleware(e.UpdatePhishingSiteBlackOriginEndpoint)
+		}
+		if inc == "UpdatePhishingOriginByWebSite" {
+			e.UpdatePhishingOriginByWebSiteEndpoint = middleware(e.UpdatePhishingOriginByWebSiteEndpoint)
+		}
+		if inc == "UpdatePhishingSiteByWebsite" {
+			e.UpdatePhishingSiteByWebsiteEndpoint = middleware(e.UpdatePhishingSiteByWebsiteEndpoint)
+		}
+		if inc == "PhishingCheck" {
+			e.PhishingCheckEndpoint = middleware(e.PhishingCheckEndpoint)
 		}
 	}
 }
@@ -166,10 +310,16 @@ type LabeledMiddleware func(string, endpoint.Endpoint) endpoint.Endpoint
 // functionality.
 func (e *Endpoints) WrapAllLabeledExcept(middleware func(string, endpoint.Endpoint) endpoint.Endpoint, excluded ...string) {
 	included := map[string]struct{}{
-		"WebsiteCategoryList": {},
-		"WebsitePage":         {},
-		"WebsiteRecommend":    {},
-		"WebsiteImport":       {},
+		"WebsiteCategoryList":           {},
+		"WebsitePage":                   {},
+		"WebsiteSearch":                 {},
+		"WebsiteRecommend":              {},
+		"WebsiteImport":                 {},
+		"UpdateMetaMaskPhishing":        {},
+		"UpdatePhishingSiteBlackOrigin": {},
+		"UpdatePhishingOriginByWebSite": {},
+		"UpdatePhishingSiteByWebsite":   {},
+		"PhishingCheck":                 {},
 	}
 
 	for _, ex := range excluded {
@@ -186,11 +336,29 @@ func (e *Endpoints) WrapAllLabeledExcept(middleware func(string, endpoint.Endpoi
 		if inc == "WebsitePage" {
 			e.WebsitePageEndpoint = middleware("WebsitePage", e.WebsitePageEndpoint)
 		}
+		if inc == "WebsiteSearch" {
+			e.WebsiteSearchEndpoint = middleware("WebsiteSearch", e.WebsiteSearchEndpoint)
+		}
 		if inc == "WebsiteRecommend" {
 			e.WebsiteRecommendEndpoint = middleware("WebsiteRecommend", e.WebsiteRecommendEndpoint)
 		}
 		if inc == "WebsiteImport" {
 			e.WebsiteImportEndpoint = middleware("WebsiteImport", e.WebsiteImportEndpoint)
+		}
+		if inc == "UpdateMetaMaskPhishing" {
+			e.UpdateMetaMaskPhishingEndpoint = middleware("UpdateMetaMaskPhishing", e.UpdateMetaMaskPhishingEndpoint)
+		}
+		if inc == "UpdatePhishingSiteBlackOrigin" {
+			e.UpdatePhishingSiteBlackOriginEndpoint = middleware("UpdatePhishingSiteBlackOrigin", e.UpdatePhishingSiteBlackOriginEndpoint)
+		}
+		if inc == "UpdatePhishingOriginByWebSite" {
+			e.UpdatePhishingOriginByWebSiteEndpoint = middleware("UpdatePhishingOriginByWebSite", e.UpdatePhishingOriginByWebSiteEndpoint)
+		}
+		if inc == "UpdatePhishingSiteByWebsite" {
+			e.UpdatePhishingSiteByWebsiteEndpoint = middleware("UpdatePhishingSiteByWebsite", e.UpdatePhishingSiteByWebsiteEndpoint)
+		}
+		if inc == "PhishingCheck" {
+			e.PhishingCheckEndpoint = middleware("PhishingCheck", e.PhishingCheckEndpoint)
 		}
 	}
 }

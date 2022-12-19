@@ -71,6 +71,16 @@ func New(instance string, options ...httptransport.ClientOption) (pb.WebsitesvcS
 			options...,
 		).Endpoint()
 	}
+	var WebsiteSearchZeroEndpoint endpoint.Endpoint
+	{
+		WebsiteSearchZeroEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/website/search/"),
+			EncodeHTTPWebsiteSearchZeroRequest,
+			DecodeHTTPWebsiteSearchResponse,
+			options...,
+		).Endpoint()
+	}
 	var WebsiteRecommendZeroEndpoint endpoint.Endpoint
 	{
 		WebsiteRecommendZeroEndpoint = httptransport.NewClient(
@@ -91,12 +101,68 @@ func New(instance string, options ...httptransport.ClientOption) (pb.WebsitesvcS
 			options...,
 		).Endpoint()
 	}
+	var UpdateMetaMaskPhishingZeroEndpoint endpoint.Endpoint
+	{
+		UpdateMetaMaskPhishingZeroEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/phishing_site/update_metamask/"),
+			EncodeHTTPUpdateMetaMaskPhishingZeroRequest,
+			DecodeHTTPUpdateMetaMaskPhishingResponse,
+			options...,
+		).Endpoint()
+	}
+	var UpdatePhishingSiteBlackOriginZeroEndpoint endpoint.Endpoint
+	{
+		UpdatePhishingSiteBlackOriginZeroEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/phishing_site/update_black_origin/"),
+			EncodeHTTPUpdatePhishingSiteBlackOriginZeroRequest,
+			DecodeHTTPUpdatePhishingSiteBlackOriginResponse,
+			options...,
+		).Endpoint()
+	}
+	var UpdatePhishingOriginByWebSiteZeroEndpoint endpoint.Endpoint
+	{
+		UpdatePhishingOriginByWebSiteZeroEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/phishing_origin/update_by_website/"),
+			EncodeHTTPUpdatePhishingOriginByWebSiteZeroRequest,
+			DecodeHTTPUpdatePhishingOriginByWebSiteResponse,
+			options...,
+		).Endpoint()
+	}
+	var UpdatePhishingSiteByWebsiteZeroEndpoint endpoint.Endpoint
+	{
+		UpdatePhishingSiteByWebsiteZeroEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/phishing_site/update_by_website/"),
+			EncodeHTTPUpdatePhishingSiteByWebsiteZeroRequest,
+			DecodeHTTPUpdatePhishingSiteByWebsiteResponse,
+			options...,
+		).Endpoint()
+	}
+	var PhishingCheckZeroEndpoint endpoint.Endpoint
+	{
+		PhishingCheckZeroEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/phishing_site/check/"),
+			EncodeHTTPPhishingCheckZeroRequest,
+			DecodeHTTPPhishingCheckResponse,
+			options...,
+		).Endpoint()
+	}
 
 	return svc.Endpoints{
-		WebsiteCategoryListEndpoint: WebsiteCategoryListZeroEndpoint,
-		WebsitePageEndpoint:         WebsitePageZeroEndpoint,
-		WebsiteRecommendEndpoint:    WebsiteRecommendZeroEndpoint,
-		WebsiteImportEndpoint:       WebsiteImportZeroEndpoint,
+		WebsiteCategoryListEndpoint:           WebsiteCategoryListZeroEndpoint,
+		WebsitePageEndpoint:                   WebsitePageZeroEndpoint,
+		WebsiteSearchEndpoint:                 WebsiteSearchZeroEndpoint,
+		WebsiteRecommendEndpoint:              WebsiteRecommendZeroEndpoint,
+		WebsiteImportEndpoint:                 WebsiteImportZeroEndpoint,
+		UpdateMetaMaskPhishingEndpoint:        UpdateMetaMaskPhishingZeroEndpoint,
+		UpdatePhishingSiteBlackOriginEndpoint: UpdatePhishingSiteBlackOriginZeroEndpoint,
+		UpdatePhishingOriginByWebSiteEndpoint: UpdatePhishingOriginByWebSiteZeroEndpoint,
+		UpdatePhishingSiteByWebsiteEndpoint:   UpdatePhishingSiteByWebsiteZeroEndpoint,
+		PhishingCheckEndpoint:                 PhishingCheckZeroEndpoint,
 	}, nil
 }
 
@@ -177,6 +243,33 @@ func DecodeHTTPWebsitePageResponse(_ context.Context, r *http.Response) (interfa
 	return &resp, nil
 }
 
+// DecodeHTTPWebsiteSearchResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded WebsiteSearchResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPWebsiteSearchResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.WebsiteSearchResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
 // DecodeHTTPWebsiteRecommendResponse is a transport/http.DecodeResponseFunc that decodes
 // a JSON-encoded WebsiteRecommendResponse response from the HTTP response body.
 // If the response has a non-200 status code, we will interpret that as an
@@ -224,6 +317,141 @@ func DecodeHTTPWebsiteImportResponse(_ context.Context, r *http.Response) (inter
 	}
 
 	var resp pb.WebsiteImportResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
+// DecodeHTTPUpdateMetaMaskPhishingResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded UpdateMetaMaskPhishingResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPUpdateMetaMaskPhishingResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.UpdateMetaMaskPhishingResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
+// DecodeHTTPUpdatePhishingSiteBlackOriginResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded UpdatePhishingSiteBlackOriginResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPUpdatePhishingSiteBlackOriginResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.UpdatePhishingSiteBlackOriginResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
+// DecodeHTTPUpdatePhishingOriginByWebSiteResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded UpdatePhishingOriginByWebSiteResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPUpdatePhishingOriginByWebSiteResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.UpdatePhishingOriginByWebSiteResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
+// DecodeHTTPUpdatePhishingSiteByWebsiteResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded UpdatePhishingSiteByWebsiteResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPUpdatePhishingSiteByWebsiteResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.UpdatePhishingSiteByWebsiteResponse
+	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
+		return nil, errorDecoder(buf)
+	}
+
+	return &resp, nil
+}
+
+// DecodeHTTPPhishingCheckResponse is a transport/http.DecodeResponseFunc that decodes
+// a JSON-encoded PhishingCheckResponse response from the HTTP response body.
+// If the response has a non-200 status code, we will interpret that as an
+// error and attempt to decode the specific error message from the response
+// body. Primarily useful in a client.
+func DecodeHTTPPhishingCheckResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	defer r.Body.Close()
+	buf, err := ioutil.ReadAll(r.Body)
+	if err == io.EOF {
+		return nil, errors.New("response http body empty")
+	}
+	if err != nil {
+		return nil, errors.Wrap(err, "cannot read http body")
+	}
+
+	if r.StatusCode != http.StatusOK {
+		return nil, errors.Wrapf(errorDecoder(buf), "status code: '%d'", r.StatusCode)
+	}
+
+	var resp pb.PhishingCheckResponse
 	if err = jsonpb.UnmarshalString(string(buf), &resp); err != nil {
 		return nil, errorDecoder(buf)
 	}
@@ -409,6 +637,83 @@ func EncodeHTTPWebsitePageOneRequest(_ context.Context, r *http.Request, request
 	return nil
 }
 
+// EncodeHTTPWebsiteSearchZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a websitesearch request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPWebsiteSearchZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.WebsiteSearchRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"website",
+		"search",
+		"",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("type", fmt.Sprint(req.Type))
+
+	values.Add("keywords", fmt.Sprint(req.Keywords))
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPWebsiteSearchOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a websitesearch request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPWebsiteSearchOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.WebsiteSearchRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"website",
+		"search",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("type", fmt.Sprint(req.Type))
+
+	values.Add("keywords", fmt.Sprint(req.Keywords))
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
 // EncodeHTTPWebsiteRecommendZeroRequest is a transport/http.EncodeRequestFunc
 // that encodes a websiterecommend request into the various portions of
 // the http request (path, query, and body).
@@ -554,6 +859,355 @@ func EncodeHTTPWebsiteImportOneRequest(_ context.Context, r *http.Request, reque
 	_ = tmp
 
 	values.Add("file_path", fmt.Sprint(req.FilePath))
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPUpdateMetaMaskPhishingZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a updatemetamaskphishing request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPUpdateMetaMaskPhishingZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.UpdateMetaMaskPhishingRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_site",
+		"update_metamask",
+		"",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPUpdateMetaMaskPhishingOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a updatemetamaskphishing request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPUpdateMetaMaskPhishingOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.UpdateMetaMaskPhishingRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_site",
+		"update_metamask",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPUpdatePhishingSiteBlackOriginZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a updatephishingsiteblackorigin request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPUpdatePhishingSiteBlackOriginZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.UpdatePhishingSiteBlackOriginRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_site",
+		"update_black_origin",
+		"",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPUpdatePhishingSiteBlackOriginOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a updatephishingsiteblackorigin request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPUpdatePhishingSiteBlackOriginOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.UpdatePhishingSiteBlackOriginRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_site",
+		"update_black_origin",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPUpdatePhishingOriginByWebSiteZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a updatephishingoriginbywebsite request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPUpdatePhishingOriginByWebSiteZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.UpdatePhishingOriginByWebSiteRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_origin",
+		"update_by_website",
+		"",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPUpdatePhishingOriginByWebSiteOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a updatephishingoriginbywebsite request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPUpdatePhishingOriginByWebSiteOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.UpdatePhishingOriginByWebSiteRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_origin",
+		"update_by_website",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPUpdatePhishingSiteByWebsiteZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a updatephishingsitebywebsite request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPUpdatePhishingSiteByWebsiteZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.UpdatePhishingSiteByWebsiteRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_site",
+		"update_by_website",
+		"",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPUpdatePhishingSiteByWebsiteOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a updatephishingsitebywebsite request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPUpdatePhishingSiteByWebsiteOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.UpdatePhishingSiteByWebsiteRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_site",
+		"update_by_website",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPPhishingCheckZeroRequest is a transport/http.EncodeRequestFunc
+// that encodes a phishingcheck request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPPhishingCheckZeroRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.PhishingCheckRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_site",
+		"check",
+		"",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("domain_name", fmt.Sprint(req.DomainName))
+
+	r.URL.RawQuery = values.Encode()
+	return nil
+}
+
+// EncodeHTTPPhishingCheckOneRequest is a transport/http.EncodeRequestFunc
+// that encodes a phishingcheck request into the various portions of
+// the http request (path, query, and body).
+func EncodeHTTPPhishingCheckOneRequest(_ context.Context, r *http.Request, request interface{}) error {
+	strval := ""
+	_ = strval
+	req := request.(*pb.PhishingCheckRequest)
+	_ = req
+
+	r.Header.Set("transport", "HTTPJSON")
+	r.Header.Set("request-url", r.URL.Path)
+
+	// Set the path parameters
+	path := strings.Join([]string{
+		"",
+		"phishing_site",
+		"check",
+	}, "/")
+	u, err := url.Parse(path)
+	if err != nil {
+		return errors.Wrapf(err, "couldn't unmarshal path %q", path)
+	}
+	r.URL.RawPath = u.RawPath
+	r.URL.Path = u.Path
+
+	// Set the query parameters
+	values := r.URL.Query()
+	var tmp []byte
+	_ = tmp
+
+	values.Add("domain_name", fmt.Sprint(req.DomainName))
 
 	r.URL.RawQuery = values.Encode()
 	return nil

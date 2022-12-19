@@ -4,7 +4,8 @@ import "github.com/mises-id/mises-websitesvc/lib/codes"
 
 type (
 	WebsiteType uint8
-	StatusType  uint8
+
+	StatusType uint8
 )
 
 const (

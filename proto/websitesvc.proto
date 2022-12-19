@@ -28,7 +28,14 @@ service Websitesvc {
             get: "/website/page/"
           }
         };
-
+}
+  rpc WebsiteSearch (WebsiteSearchRequest) returns (WebsiteSearchResponse) {
+        option (google.api.http) = {
+          get: "/website/search"
+          additional_bindings {
+            get: "/website/search/"
+          }
+        };
 }
   rpc WebsiteRecommend (WebsiteRecommendRequest) returns (WebsiteRecommendResponse) {
         option (google.api.http) = {
@@ -37,7 +44,6 @@ service Websitesvc {
             get: "/website/recommend/"
           }
         };
-
 }
   rpc WebsiteImport (WebsiteImportRequest) returns (WebsiteImportResponse) {
         option (google.api.http) = {
@@ -46,7 +52,46 @@ service Websitesvc {
             get: "/website/import/"
           }
         };
-
+}
+  rpc UpdateMetaMaskPhishing (UpdateMetaMaskPhishingRequest) returns (UpdateMetaMaskPhishingResponse) {
+        option (google.api.http) = {
+          get: "/phishing_site/update_metamask"
+          additional_bindings {
+            get: "/phishing_site/update_metamask/"
+          }
+        };
+}
+  rpc UpdatePhishingSiteBlackOrigin (UpdatePhishingSiteBlackOriginRequest) returns (UpdatePhishingSiteBlackOriginResponse) {
+        option (google.api.http) = {
+          get: "/phishing_site/update_black_origin"
+          additional_bindings {
+            get: "/phishing_site/update_black_origin/"
+          }
+        };
+}
+  rpc UpdatePhishingOriginByWebSite (UpdatePhishingOriginByWebSiteRequest) returns (UpdatePhishingOriginByWebSiteResponse) {
+        option (google.api.http) = {
+          get: "/phishing_origin/update_by_website"
+          additional_bindings {
+            get: "/phishing_origin/update_by_website/"
+          }
+        };
+}
+  rpc UpdatePhishingSiteByWebsite (UpdatePhishingSiteByWebsiteRequest) returns (UpdatePhishingSiteByWebsiteResponse) {
+        option (google.api.http) = {
+          get: "/phishing_site/update_by_website"
+          additional_bindings {
+            get: "/phishing_site/update_by_website/"
+          }
+        };
+}
+  rpc PhishingCheck (PhishingCheckRequest) returns (PhishingCheckResponse) {
+        option (google.api.http) = {
+          get: "/phishing_site/check"
+          additional_bindings {
+            get: "/phishing_site/check/"
+          }
+        };
 }
 
 }
@@ -96,6 +141,15 @@ message WebsitePageResponse {
   repeated Website data = 2;
   Page paginator = 3;
 }
+message WebsiteSearchRequest {
+  string type = 1;
+  string keywords = 2;
+}
+
+message WebsiteSearchResponse {
+  uint64 code = 1;
+  repeated Website data = 2;
+}
 
 message Website {
   string id = 1;
@@ -125,4 +179,38 @@ message WebsiteImportRequest {
 
 message WebsiteImportResponse {
   uint64 code = 1;
+}
+message UpdateMetaMaskPhishingRequest {
+ 
+}
+message UpdateMetaMaskPhishingResponse {
+  uint64 code = 1;
+}
+message UpdatePhishingOriginByWebSiteRequest {
+ 
+}
+message UpdatePhishingOriginByWebSiteResponse {
+  uint64 code = 1;
+}
+message UpdatePhishingSiteBlackOriginRequest {
+ 
+}
+message UpdatePhishingSiteBlackOriginResponse {
+  uint64 code = 1;
+}
+message UpdatePhishingSiteByWebsiteRequest {
+ 
+}
+message UpdatePhishingSiteByWebsiteResponse {
+  uint64 code = 1;
+}
+message PhishingCheckRequest {
+ string domain_name = 1;
+}
+message PhishingCheckResponse {
+  uint64 code = 1;
+  uint64 type = 2;
+  string type_string = 3;
+  string domain_name = 4;
+  string origin = 5;
 }

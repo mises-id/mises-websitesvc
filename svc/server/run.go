@@ -53,17 +53,29 @@ func NewEndpoints(service pb.WebsitesvcServer) svc.Endpoints {
 
 	// Endpoint domain.
 	var (
-		websitecategorylistEndpoint = svc.MakeWebsiteCategoryListEndpoint(service)
-		websitepageEndpoint         = svc.MakeWebsitePageEndpoint(service)
-		websiterecommendEndpoint    = svc.MakeWebsiteRecommendEndpoint(service)
-		websiteimportEndpoint       = svc.MakeWebsiteImportEndpoint(service)
+		websitecategorylistEndpoint           = svc.MakeWebsiteCategoryListEndpoint(service)
+		websitepageEndpoint                   = svc.MakeWebsitePageEndpoint(service)
+		websitesearchEndpoint                 = svc.MakeWebsiteSearchEndpoint(service)
+		websiterecommendEndpoint              = svc.MakeWebsiteRecommendEndpoint(service)
+		websiteimportEndpoint                 = svc.MakeWebsiteImportEndpoint(service)
+		updatemetamaskphishingEndpoint        = svc.MakeUpdateMetaMaskPhishingEndpoint(service)
+		updatephishingsiteblackoriginEndpoint = svc.MakeUpdatePhishingSiteBlackOriginEndpoint(service)
+		updatephishingoriginbywebsiteEndpoint = svc.MakeUpdatePhishingOriginByWebSiteEndpoint(service)
+		updatephishingsitebywebsiteEndpoint   = svc.MakeUpdatePhishingSiteByWebsiteEndpoint(service)
+		phishingcheckEndpoint                 = svc.MakePhishingCheckEndpoint(service)
 	)
 
 	endpoints := svc.Endpoints{
-		WebsiteCategoryListEndpoint: websitecategorylistEndpoint,
-		WebsitePageEndpoint:         websitepageEndpoint,
-		WebsiteRecommendEndpoint:    websiterecommendEndpoint,
-		WebsiteImportEndpoint:       websiteimportEndpoint,
+		WebsiteCategoryListEndpoint:           websitecategorylistEndpoint,
+		WebsitePageEndpoint:                   websitepageEndpoint,
+		WebsiteSearchEndpoint:                 websitesearchEndpoint,
+		WebsiteRecommendEndpoint:              websiterecommendEndpoint,
+		WebsiteImportEndpoint:                 websiteimportEndpoint,
+		UpdateMetaMaskPhishingEndpoint:        updatemetamaskphishingEndpoint,
+		UpdatePhishingSiteBlackOriginEndpoint: updatephishingsiteblackoriginEndpoint,
+		UpdatePhishingOriginByWebSiteEndpoint: updatephishingoriginbywebsiteEndpoint,
+		UpdatePhishingSiteByWebsiteEndpoint:   updatephishingsitebywebsiteEndpoint,
+		PhishingCheckEndpoint:                 phishingcheckEndpoint,
 	}
 
 	// Wrap selected Endpoints with middlewares. See handlers/middlewares.go

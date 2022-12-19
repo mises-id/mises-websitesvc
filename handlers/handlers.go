@@ -6,6 +6,8 @@ import (
 	"github.com/mises-id/mises-websitesvc/app/factory"
 	"github.com/mises-id/mises-websitesvc/app/models/enum"
 	"github.com/mises-id/mises-websitesvc/app/models/search"
+	"github.com/mises-id/mises-websitesvc/app/services/phishing_origin"
+	"github.com/mises-id/mises-websitesvc/app/services/phishing_site"
 	"github.com/mises-id/mises-websitesvc/app/services/website"
 	"github.com/mises-id/mises-websitesvc/app/services/website_category"
 	"github.com/mises-id/mises-websitesvc/lib/pagination"
@@ -104,5 +106,74 @@ func (s websitesvcService) WebsiteImport(ctx context.Context, in *pb.WebsiteImpo
 		return nil, err
 	}
 	resp.Code = 0
+	return &resp, nil
+}
+
+func (s websitesvcService) UpdateMetaMaskPhishing(ctx context.Context, in *pb.UpdateMetaMaskPhishingRequest) (*pb.UpdateMetaMaskPhishingResponse, error) {
+	var resp pb.UpdateMetaMaskPhishingResponse
+	err := phishing_site.UpdateMetaMaskPhishingConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+	resp.Code = 0
+	return &resp, nil
+}
+
+func (s websitesvcService) UpdatePhishingOriginByWebSite(ctx context.Context, in *pb.UpdatePhishingOriginByWebSiteRequest) (*pb.UpdatePhishingOriginByWebSiteResponse, error) {
+	var resp pb.UpdatePhishingOriginByWebSiteResponse
+	err := phishing_origin.UpdatePhishingOriginByWebSite(ctx)
+	if err != nil {
+		return nil, err
+	}
+	resp.Code = 0
+	return &resp, nil
+}
+
+func (s websitesvcService) UpdatePhishingSiteBlackOrigin(ctx context.Context, in *pb.UpdatePhishingSiteBlackOriginRequest) (*pb.UpdatePhishingSiteBlackOriginResponse, error) {
+	var resp pb.UpdatePhishingSiteBlackOriginResponse
+	err := phishing_site.UpdatePhishingSiteBlackOrigin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	resp.Code = 0
+	return &resp, nil
+}
+
+func (s websitesvcService) UpdatePhishingSiteByWebsite(ctx context.Context, in *pb.UpdatePhishingSiteByWebsiteRequest) (*pb.UpdatePhishingSiteByWebsiteResponse, error) {
+	var resp pb.UpdatePhishingSiteByWebsiteResponse
+	err := phishing_site.UpdatePhishingSiteByWebSite(ctx)
+	if err != nil {
+		return nil, err
+	}
+	resp.Code = 0
+	return &resp, nil
+}
+
+func (s websitesvcService) PhishingCheck(ctx context.Context, in *pb.PhishingCheckRequest) (*pb.PhishingCheckResponse, error) {
+	var resp pb.PhishingCheckResponse
+	params := &phishing_site.PhishingCheckInput{
+		DomainName: in.DomainName,
+	}
+	res, err := phishing_site.DomainNamePhishingCheck(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	resp.Code = 0
+	resp.Type = uint64(res.Type)
+	resp.DomainName = res.DomainName
+	resp.Origin = res.Origin
+	resp.TypeString = res.TypeString
+	return &resp, nil
+}
+
+func (s websitesvcService) WebsiteSearch(ctx context.Context, in *pb.WebsiteSearchRequest) (*pb.WebsiteSearchResponse, error) {
+	var resp pb.WebsiteSearchResponse
+	params := &website.WebsiteSearchInput{Keywords: in.Keywords}
+	data, err := website.SearchWebsite(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	resp.Code = 0
+	resp.Data = factory.NewWebsiteSlice(data)
 	return &resp, nil
 }

@@ -2,12 +2,14 @@ package models
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/mises-id/mises-websitesvc/app/models/enum"
 	"github.com/mises-id/mises-websitesvc/lib/db"
 	"github.com/mises-id/mises-websitesvc/lib/pagination"
 	"github.com/mises-id/mises-websitesvc/lib/storage/view"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -106,4 +108,31 @@ func ListWebsite(ctx context.Context, params IAdminParams) ([]*Website, error) {
 		return nil, err
 	}
 	return res, preloadWebsite(ctx, res...)
+}
+
+func SearchWebsite(ctx context.Context, keywords string) ([]*Website, error) {
+	out := make([]*Website, 0)
+	fmt.Println("keywords: ", keywords)
+	pipe := bson.A{
+		//bson.M{"$match": bson.M{"type": enum.Web3}},
+		//bson.M{"$search": bson.M{"index": "default", "text": bson.M{"query": keywords, "path": bson.M{"wildcard": "*"}}}},
+		bson.M{"$search": bson.M{"compound": bson.M{
+			"must": bson.A{
+				bson.M{"text": bson.M{"query": keywords, "path": bson.M{"wildcard": "*"}}},
+			},
+			"filter": bson.A{
+				bson.M{"range": bson.M{"lte": 1, "path": "type"}},
+			},
+			"score": bson.M{"function": bson.M{"path": bson.M{"value": "sort_num", "undefined": 1.0}}},
+		}}},
+	}
+	res, err := db.DB().Collection("websites").Aggregate(ctx, pipe)
+	if err != nil {
+		return nil, err
+	}
+	err = res.All(ctx, &out)
+	if err != nil {
+		return nil, err
+	}
+	return out, preloadWebsite(ctx, out...)
 }

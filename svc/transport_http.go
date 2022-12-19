@@ -84,6 +84,19 @@ func MakeHTTPHandler(endpoints Endpoints, responseEncoder httptransport.EncodeRe
 		serverOptions...,
 	))
 
+	m.Methods("GET").Path("/website/search/").Handler(httptransport.NewServer(
+		endpoints.WebsiteSearchEndpoint,
+		DecodeHTTPWebsiteSearchZeroRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+	m.Methods("GET").Path("/website/search").Handler(httptransport.NewServer(
+		endpoints.WebsiteSearchEndpoint,
+		DecodeHTTPWebsiteSearchOneRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+
 	m.Methods("GET").Path("/website/recommend/").Handler(httptransport.NewServer(
 		endpoints.WebsiteRecommendEndpoint,
 		DecodeHTTPWebsiteRecommendZeroRequest,
@@ -106,6 +119,71 @@ func MakeHTTPHandler(endpoints Endpoints, responseEncoder httptransport.EncodeRe
 	m.Methods("GET").Path("/website/import").Handler(httptransport.NewServer(
 		endpoints.WebsiteImportEndpoint,
 		DecodeHTTPWebsiteImportOneRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+
+	m.Methods("GET").Path("/phishing_site/update_metamask/").Handler(httptransport.NewServer(
+		endpoints.UpdateMetaMaskPhishingEndpoint,
+		DecodeHTTPUpdateMetaMaskPhishingZeroRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+	m.Methods("GET").Path("/phishing_site/update_metamask").Handler(httptransport.NewServer(
+		endpoints.UpdateMetaMaskPhishingEndpoint,
+		DecodeHTTPUpdateMetaMaskPhishingOneRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+
+	m.Methods("GET").Path("/phishing_site/update_black_origin/").Handler(httptransport.NewServer(
+		endpoints.UpdatePhishingSiteBlackOriginEndpoint,
+		DecodeHTTPUpdatePhishingSiteBlackOriginZeroRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+	m.Methods("GET").Path("/phishing_site/update_black_origin").Handler(httptransport.NewServer(
+		endpoints.UpdatePhishingSiteBlackOriginEndpoint,
+		DecodeHTTPUpdatePhishingSiteBlackOriginOneRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+
+	m.Methods("GET").Path("/phishing_origin/update_by_website/").Handler(httptransport.NewServer(
+		endpoints.UpdatePhishingOriginByWebSiteEndpoint,
+		DecodeHTTPUpdatePhishingOriginByWebSiteZeroRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+	m.Methods("GET").Path("/phishing_origin/update_by_website").Handler(httptransport.NewServer(
+		endpoints.UpdatePhishingOriginByWebSiteEndpoint,
+		DecodeHTTPUpdatePhishingOriginByWebSiteOneRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+
+	m.Methods("GET").Path("/phishing_site/update_by_website/").Handler(httptransport.NewServer(
+		endpoints.UpdatePhishingSiteByWebsiteEndpoint,
+		DecodeHTTPUpdatePhishingSiteByWebsiteZeroRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+	m.Methods("GET").Path("/phishing_site/update_by_website").Handler(httptransport.NewServer(
+		endpoints.UpdatePhishingSiteByWebsiteEndpoint,
+		DecodeHTTPUpdatePhishingSiteByWebsiteOneRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+
+	m.Methods("GET").Path("/phishing_site/check/").Handler(httptransport.NewServer(
+		endpoints.PhishingCheckEndpoint,
+		DecodeHTTPPhishingCheckZeroRequest,
+		responseEncoder,
+		serverOptions...,
+	))
+	m.Methods("GET").Path("/phishing_site/check").Handler(httptransport.NewServer(
+		endpoints.PhishingCheckEndpoint,
+		DecodeHTTPPhishingCheckOneRequest,
 		responseEncoder,
 		serverOptions...,
 	))
@@ -404,6 +482,102 @@ func DecodeHTTPWebsitePageOneRequest(_ context.Context, r *http.Request) (interf
 	return &req, err
 }
 
+// DecodeHTTPWebsiteSearchZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded websitesearch request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPWebsiteSearchZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.WebsiteSearchRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if TypeWebsiteSearchStrArr, ok := queryParams["type"]; ok {
+		TypeWebsiteSearchStr := TypeWebsiteSearchStrArr[0]
+		TypeWebsiteSearch := TypeWebsiteSearchStr
+		req.Type = TypeWebsiteSearch
+	}
+
+	if KeywordsWebsiteSearchStrArr, ok := queryParams["keywords"]; ok {
+		KeywordsWebsiteSearchStr := KeywordsWebsiteSearchStrArr[0]
+		KeywordsWebsiteSearch := KeywordsWebsiteSearchStr
+		req.Keywords = KeywordsWebsiteSearch
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPWebsiteSearchOneRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded websitesearch request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPWebsiteSearchOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.WebsiteSearchRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if TypeWebsiteSearchStrArr, ok := queryParams["type"]; ok {
+		TypeWebsiteSearchStr := TypeWebsiteSearchStrArr[0]
+		TypeWebsiteSearch := TypeWebsiteSearchStr
+		req.Type = TypeWebsiteSearch
+	}
+
+	if KeywordsWebsiteSearchStrArr, ok := queryParams["keywords"]; ok {
+		KeywordsWebsiteSearchStr := KeywordsWebsiteSearchStrArr[0]
+		KeywordsWebsiteSearch := KeywordsWebsiteSearchStr
+		req.Keywords = KeywordsWebsiteSearch
+	}
+
+	return &req, err
+}
+
 // DecodeHTTPWebsiteRecommendZeroRequest is a transport/http.DecodeRequestFunc that
 // decodes a JSON-encoded websiterecommend request from the HTTP request
 // body. Primarily useful in a server.
@@ -585,6 +759,378 @@ func DecodeHTTPWebsiteImportOneRequest(_ context.Context, r *http.Request) (inte
 		FilePathWebsiteImportStr := FilePathWebsiteImportStrArr[0]
 		FilePathWebsiteImport := FilePathWebsiteImportStr
 		req.FilePath = FilePathWebsiteImport
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPUpdateMetaMaskPhishingZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded updatemetamaskphishing request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPUpdateMetaMaskPhishingZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.UpdateMetaMaskPhishingRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	return &req, err
+}
+
+// DecodeHTTPUpdateMetaMaskPhishingOneRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded updatemetamaskphishing request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPUpdateMetaMaskPhishingOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.UpdateMetaMaskPhishingRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	return &req, err
+}
+
+// DecodeHTTPUpdatePhishingSiteBlackOriginZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded updatephishingsiteblackorigin request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPUpdatePhishingSiteBlackOriginZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.UpdatePhishingSiteBlackOriginRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	return &req, err
+}
+
+// DecodeHTTPUpdatePhishingSiteBlackOriginOneRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded updatephishingsiteblackorigin request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPUpdatePhishingSiteBlackOriginOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.UpdatePhishingSiteBlackOriginRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	return &req, err
+}
+
+// DecodeHTTPUpdatePhishingOriginByWebSiteZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded updatephishingoriginbywebsite request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPUpdatePhishingOriginByWebSiteZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.UpdatePhishingOriginByWebSiteRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	return &req, err
+}
+
+// DecodeHTTPUpdatePhishingOriginByWebSiteOneRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded updatephishingoriginbywebsite request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPUpdatePhishingOriginByWebSiteOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.UpdatePhishingOriginByWebSiteRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	return &req, err
+}
+
+// DecodeHTTPUpdatePhishingSiteByWebsiteZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded updatephishingsitebywebsite request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPUpdatePhishingSiteByWebsiteZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.UpdatePhishingSiteByWebsiteRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	return &req, err
+}
+
+// DecodeHTTPUpdatePhishingSiteByWebsiteOneRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded updatephishingsitebywebsite request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPUpdatePhishingSiteByWebsiteOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.UpdatePhishingSiteByWebsiteRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	return &req, err
+}
+
+// DecodeHTTPPhishingCheckZeroRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded phishingcheck request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPPhishingCheckZeroRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.PhishingCheckRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if DomainNamePhishingCheckStrArr, ok := queryParams["domain_name"]; ok {
+		DomainNamePhishingCheckStr := DomainNamePhishingCheckStrArr[0]
+		DomainNamePhishingCheck := DomainNamePhishingCheckStr
+		req.DomainName = DomainNamePhishingCheck
+	}
+
+	return &req, err
+}
+
+// DecodeHTTPPhishingCheckOneRequest is a transport/http.DecodeRequestFunc that
+// decodes a JSON-encoded phishingcheck request from the HTTP request
+// body. Primarily useful in a server.
+func DecodeHTTPPhishingCheckOneRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	var req pb.PhishingCheckRequest
+	buf, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, errors.Wrapf(err, "cannot read body of http request")
+	}
+	if len(buf) > 0 {
+		// AllowUnknownFields stops the unmarshaler from failing if the JSON contains unknown fields.
+		unmarshaller := jsonpb.Unmarshaler{
+			AllowUnknownFields: true,
+		}
+		if err = unmarshaller.Unmarshal(bytes.NewBuffer(buf), &req); err != nil {
+			const size = 8196
+			if len(buf) > size {
+				buf = buf[:size]
+			}
+			return nil, httpError{errors.Wrapf(err, "request body '%s': cannot parse non-json request body", buf),
+				http.StatusBadRequest,
+				nil,
+			}
+		}
+	}
+
+	pathParams := encodePathParams(mux.Vars(r))
+	_ = pathParams
+
+	queryParams := r.URL.Query()
+	_ = queryParams
+
+	if DomainNamePhishingCheckStrArr, ok := queryParams["domain_name"]; ok {
+		DomainNamePhishingCheckStr := DomainNamePhishingCheckStrArr[0]
+		DomainNamePhishingCheck := DomainNamePhishingCheckStr
+		req.DomainName = DomainNamePhishingCheck
 	}
 
 	return &req, err

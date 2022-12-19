@@ -62,6 +62,19 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.WebsitesvcServer, e
 		).Endpoint()
 	}
 
+	var websitesearchEndpoint endpoint.Endpoint
+	{
+		websitesearchEndpoint = grpctransport.NewClient(
+			conn,
+			"websitesvc.Websitesvc",
+			"WebsiteSearch",
+			EncodeGRPCWebsiteSearchRequest,
+			DecodeGRPCWebsiteSearchResponse,
+			pb.WebsiteSearchResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
 	var websiterecommendEndpoint endpoint.Endpoint
 	{
 		websiterecommendEndpoint = grpctransport.NewClient(
@@ -88,11 +101,82 @@ func New(conn *grpc.ClientConn, options ...ClientOption) (pb.WebsitesvcServer, e
 		).Endpoint()
 	}
 
+	var updatemetamaskphishingEndpoint endpoint.Endpoint
+	{
+		updatemetamaskphishingEndpoint = grpctransport.NewClient(
+			conn,
+			"websitesvc.Websitesvc",
+			"UpdateMetaMaskPhishing",
+			EncodeGRPCUpdateMetaMaskPhishingRequest,
+			DecodeGRPCUpdateMetaMaskPhishingResponse,
+			pb.UpdateMetaMaskPhishingResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
+	var updatephishingsiteblackoriginEndpoint endpoint.Endpoint
+	{
+		updatephishingsiteblackoriginEndpoint = grpctransport.NewClient(
+			conn,
+			"websitesvc.Websitesvc",
+			"UpdatePhishingSiteBlackOrigin",
+			EncodeGRPCUpdatePhishingSiteBlackOriginRequest,
+			DecodeGRPCUpdatePhishingSiteBlackOriginResponse,
+			pb.UpdatePhishingSiteBlackOriginResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
+	var updatephishingoriginbywebsiteEndpoint endpoint.Endpoint
+	{
+		updatephishingoriginbywebsiteEndpoint = grpctransport.NewClient(
+			conn,
+			"websitesvc.Websitesvc",
+			"UpdatePhishingOriginByWebSite",
+			EncodeGRPCUpdatePhishingOriginByWebSiteRequest,
+			DecodeGRPCUpdatePhishingOriginByWebSiteResponse,
+			pb.UpdatePhishingOriginByWebSiteResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
+	var updatephishingsitebywebsiteEndpoint endpoint.Endpoint
+	{
+		updatephishingsitebywebsiteEndpoint = grpctransport.NewClient(
+			conn,
+			"websitesvc.Websitesvc",
+			"UpdatePhishingSiteByWebsite",
+			EncodeGRPCUpdatePhishingSiteByWebsiteRequest,
+			DecodeGRPCUpdatePhishingSiteByWebsiteResponse,
+			pb.UpdatePhishingSiteByWebsiteResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
+	var phishingcheckEndpoint endpoint.Endpoint
+	{
+		phishingcheckEndpoint = grpctransport.NewClient(
+			conn,
+			"websitesvc.Websitesvc",
+			"PhishingCheck",
+			EncodeGRPCPhishingCheckRequest,
+			DecodeGRPCPhishingCheckResponse,
+			pb.PhishingCheckResponse{},
+			clientOptions...,
+		).Endpoint()
+	}
+
 	return svc.Endpoints{
-		WebsiteCategoryListEndpoint: websitecategorylistEndpoint,
-		WebsitePageEndpoint:         websitepageEndpoint,
-		WebsiteRecommendEndpoint:    websiterecommendEndpoint,
-		WebsiteImportEndpoint:       websiteimportEndpoint,
+		WebsiteCategoryListEndpoint:           websitecategorylistEndpoint,
+		WebsitePageEndpoint:                   websitepageEndpoint,
+		WebsiteSearchEndpoint:                 websitesearchEndpoint,
+		WebsiteRecommendEndpoint:              websiterecommendEndpoint,
+		WebsiteImportEndpoint:                 websiteimportEndpoint,
+		UpdateMetaMaskPhishingEndpoint:        updatemetamaskphishingEndpoint,
+		UpdatePhishingSiteBlackOriginEndpoint: updatephishingsiteblackoriginEndpoint,
+		UpdatePhishingOriginByWebSiteEndpoint: updatephishingoriginbywebsiteEndpoint,
+		UpdatePhishingSiteByWebsiteEndpoint:   updatephishingsitebywebsiteEndpoint,
+		PhishingCheckEndpoint:                 phishingcheckEndpoint,
 	}, nil
 }
 
@@ -112,6 +196,13 @@ func DecodeGRPCWebsitePageResponse(_ context.Context, grpcReply interface{}) (in
 	return reply, nil
 }
 
+// DecodeGRPCWebsiteSearchResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC websitesearch reply to a user-domain websitesearch response. Primarily useful in a client.
+func DecodeGRPCWebsiteSearchResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.WebsiteSearchResponse)
+	return reply, nil
+}
+
 // DecodeGRPCWebsiteRecommendResponse is a transport/grpc.DecodeResponseFunc that converts a
 // gRPC websiterecommend reply to a user-domain websiterecommend response. Primarily useful in a client.
 func DecodeGRPCWebsiteRecommendResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
@@ -123,6 +214,41 @@ func DecodeGRPCWebsiteRecommendResponse(_ context.Context, grpcReply interface{}
 // gRPC websiteimport reply to a user-domain websiteimport response. Primarily useful in a client.
 func DecodeGRPCWebsiteImportResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
 	reply := grpcReply.(*pb.WebsiteImportResponse)
+	return reply, nil
+}
+
+// DecodeGRPCUpdateMetaMaskPhishingResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC updatemetamaskphishing reply to a user-domain updatemetamaskphishing response. Primarily useful in a client.
+func DecodeGRPCUpdateMetaMaskPhishingResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.UpdateMetaMaskPhishingResponse)
+	return reply, nil
+}
+
+// DecodeGRPCUpdatePhishingSiteBlackOriginResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC updatephishingsiteblackorigin reply to a user-domain updatephishingsiteblackorigin response. Primarily useful in a client.
+func DecodeGRPCUpdatePhishingSiteBlackOriginResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.UpdatePhishingSiteBlackOriginResponse)
+	return reply, nil
+}
+
+// DecodeGRPCUpdatePhishingOriginByWebSiteResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC updatephishingoriginbywebsite reply to a user-domain updatephishingoriginbywebsite response. Primarily useful in a client.
+func DecodeGRPCUpdatePhishingOriginByWebSiteResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.UpdatePhishingOriginByWebSiteResponse)
+	return reply, nil
+}
+
+// DecodeGRPCUpdatePhishingSiteByWebsiteResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC updatephishingsitebywebsite reply to a user-domain updatephishingsitebywebsite response. Primarily useful in a client.
+func DecodeGRPCUpdatePhishingSiteByWebsiteResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.UpdatePhishingSiteByWebsiteResponse)
+	return reply, nil
+}
+
+// DecodeGRPCPhishingCheckResponse is a transport/grpc.DecodeResponseFunc that converts a
+// gRPC phishingcheck reply to a user-domain phishingcheck response. Primarily useful in a client.
+func DecodeGRPCPhishingCheckResponse(_ context.Context, grpcReply interface{}) (interface{}, error) {
+	reply := grpcReply.(*pb.PhishingCheckResponse)
 	return reply, nil
 }
 
@@ -142,6 +268,13 @@ func EncodeGRPCWebsitePageRequest(_ context.Context, request interface{}) (inter
 	return req, nil
 }
 
+// EncodeGRPCWebsiteSearchRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain websitesearch request to a gRPC websitesearch request. Primarily useful in a client.
+func EncodeGRPCWebsiteSearchRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.WebsiteSearchRequest)
+	return req, nil
+}
+
 // EncodeGRPCWebsiteRecommendRequest is a transport/grpc.EncodeRequestFunc that converts a
 // user-domain websiterecommend request to a gRPC websiterecommend request. Primarily useful in a client.
 func EncodeGRPCWebsiteRecommendRequest(_ context.Context, request interface{}) (interface{}, error) {
@@ -153,6 +286,41 @@ func EncodeGRPCWebsiteRecommendRequest(_ context.Context, request interface{}) (
 // user-domain websiteimport request to a gRPC websiteimport request. Primarily useful in a client.
 func EncodeGRPCWebsiteImportRequest(_ context.Context, request interface{}) (interface{}, error) {
 	req := request.(*pb.WebsiteImportRequest)
+	return req, nil
+}
+
+// EncodeGRPCUpdateMetaMaskPhishingRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain updatemetamaskphishing request to a gRPC updatemetamaskphishing request. Primarily useful in a client.
+func EncodeGRPCUpdateMetaMaskPhishingRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.UpdateMetaMaskPhishingRequest)
+	return req, nil
+}
+
+// EncodeGRPCUpdatePhishingSiteBlackOriginRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain updatephishingsiteblackorigin request to a gRPC updatephishingsiteblackorigin request. Primarily useful in a client.
+func EncodeGRPCUpdatePhishingSiteBlackOriginRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.UpdatePhishingSiteBlackOriginRequest)
+	return req, nil
+}
+
+// EncodeGRPCUpdatePhishingOriginByWebSiteRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain updatephishingoriginbywebsite request to a gRPC updatephishingoriginbywebsite request. Primarily useful in a client.
+func EncodeGRPCUpdatePhishingOriginByWebSiteRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.UpdatePhishingOriginByWebSiteRequest)
+	return req, nil
+}
+
+// EncodeGRPCUpdatePhishingSiteByWebsiteRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain updatephishingsitebywebsite request to a gRPC updatephishingsitebywebsite request. Primarily useful in a client.
+func EncodeGRPCUpdatePhishingSiteByWebsiteRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.UpdatePhishingSiteByWebsiteRequest)
+	return req, nil
+}
+
+// EncodeGRPCPhishingCheckRequest is a transport/grpc.EncodeRequestFunc that converts a
+// user-domain phishingcheck request to a gRPC phishingcheck request. Primarily useful in a client.
+func EncodeGRPCPhishingCheckRequest(_ context.Context, request interface{}) (interface{}, error) {
+	req := request.(*pb.PhishingCheckRequest)
 	return req, nil
 }
 

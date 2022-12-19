@@ -10,6 +10,7 @@ import (
 	"github.com/mises-id/mises-websitesvc/app/models"
 	"github.com/mises-id/mises-websitesvc/app/models/enum"
 	"github.com/mises-id/mises-websitesvc/app/models/search"
+	"github.com/mises-id/mises-websitesvc/lib/codes"
 	"github.com/mises-id/mises-websitesvc/lib/pagination"
 	"github.com/mises-id/mises-websitesvc/lib/utils"
 	"github.com/xuri/excelize/v2"
@@ -23,13 +24,26 @@ type (
 	WebsiteRecommendInput struct {
 		Num uint
 	}
+	WebsiteSearchInput struct {
+		Keywords string
+	}
 )
 
+//PageWebsite
 func PageWebsite(ctx context.Context, in *WebsiteInput) ([]*models.Website, pagination.Pagination, error) {
 	params := in.WebsiteSearch
 	return models.PageWebsite(ctx, params)
 }
 
+//SearchWebsite
+func SearchWebsite(ctx context.Context, in *WebsiteSearchInput) ([]*models.Website, error) {
+	if in == nil {
+		return nil, codes.ErrInvalidArgument
+	}
+	return models.SearchWebsite(ctx, in.Keywords)
+}
+
+//RecommendWebsite
 func RecommendWebsite(ctx context.Context, in *WebsiteRecommendInput) ([]*models.Website, error) {
 	var list_num uint
 	params := &search.WebsiteSearch{
@@ -49,6 +63,7 @@ func RecommendWebsite(ctx context.Context, in *WebsiteRecommendInput) ([]*models
 	return data, nil
 }
 
+//ImportWebsite
 func ImportWebsite(ctx context.Context, filePath string) error {
 	ext := path.Ext(filePath)
 	if ext != ".xlsx" {
